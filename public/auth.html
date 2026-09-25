@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDStream - Authentication</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-black min-h-screen relative overflow-hidden flex items-center justify-center font-sans text-white selection:bg-white/20">
+
+    <!-- Layer 1: Background Video (login.mp4) -->
+    <video src="./login.mp4" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0 scale-[0.85]"></video>
+
+    <!-- Layer 2: Dark Overlay & Vignette -->
+    <div class="absolute inset-0 bg-[#0A0A0C]/40 mix-blend-multiply z-10 pointer-events-none"></div>
+    <div class="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,1)] z-10 pointer-events-none"></div>
+
+    <!-- Masking Blobs for baked-in video watermarks -->
+    <!-- Top Right Mask for logo -->
+    <div class="absolute top-[-5%] right-[5%] w-[40%] h-[40%] bg-black blur-3xl z-10 pointer-events-none rounded-full"></div>
+    <div class="absolute top-[2%] right-[10%] w-[30%] h-[25%] bg-black blur-2xl z-10 pointer-events-none rounded-full"></div>
+    
+    <!-- Bottom Left Mask for QClay Design & Gift Card -->
+    <div class="absolute bottom-[-10%] left-[-5%] w-[40%] h-[40%] bg-black blur-3xl z-10 pointer-events-none rounded-[100%]"></div>
+    <div class="absolute bottom-[-5%] left-[5%] w-[30%] h-[30%] bg-black blur-2xl z-10 pointer-events-none rounded-[100%]"></div>
+
+    <!-- Bottom Right Mask for Sparkle -->
+    <div class="absolute bottom-[-10%] right-[-5%] w-[30%] h-[40%] bg-black blur-3xl z-10 pointer-events-none rounded-[100%]"></div>
+    <div class="absolute bottom-[-5%] right-[5%] w-[25%] h-[30%] bg-black blur-2xl z-10 pointer-events-none rounded-[100%]"></div>
+
+    <!-- Header -->
+    <header class="absolute top-0 inset-x-0 z-30 flex justify-between items-center px-8 md:px-12 py-8">
+        <a href="index.html" class="flex items-center gap-3 cursor-pointer group hover:opacity-80 transition-opacity">
+            <div class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center backdrop-blur-md group-hover:border-white transition-colors duration-300">
+                <div class="w-3 h-3 bg-white rounded-full transition-transform duration-300 group-hover:scale-110"></div>
+            </div>
+            <span class="text-sm font-semibold tracking-[0.2em] text-white uppercase">IDStream</span>
+        </a>
+        
+        <!-- Top Right Button -->
+        <a href="index.html" class="relative z-20 text-xs font-medium tracking-widest text-white/50 hover:text-white uppercase transition-colors duration-300 bg-white/5 px-5 py-2.5 rounded-full border border-white/10 backdrop-blur-md">
+            Back to Experience
+        </a>
+    </header>
+
+    <!-- Layer 3: Transparent Login Interface -->
+    <div class="relative z-20 w-full max-w-md p-8 md:p-12">
+        
+        <!-- Title -->
+        <div class="mb-10 border-b border-white/10 pb-4">
+            <h2 class="text-white font-medium text-lg tracking-wide inline-block border-b-2 border-white pb-4 -mb-[17px]">Log In</h2>
+        </div>
+
+        <!-- Form -->
+        <form id="auth-form" class="space-y-6" onsubmit="event.preventDefault(); window.location.href='dashboard.html';">
+            
+            <div class="space-y-2">
+                <label class="text-xs font-semibold tracking-widest text-white/60 uppercase">Email Address</label>
+                <input type="email" placeholder="you@example.com" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-white/30 focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/40 transition-all">
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <label class="text-xs font-semibold tracking-widest text-white/60 uppercase">Password</label>
+                    <a href="#" id="forgot-link" class="text-xs text-white/40 hover:text-white transition-colors">Forgot?</a>
+                </div>
+                <input type="password" placeholder="••••••••" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-white/30 focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/40 transition-all">
+            </div>
+
+            <button type="submit" id="submit-btn" class="w-full bg-white text-black font-semibold tracking-wide py-3.5 rounded-xl hover:bg-gray-200 transition-colors mt-8 shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.3)]">
+                Authenticate
+            </button>
+        </form>
+
+        <p class="mt-8 text-center text-xs text-white/40">
+            By authenticating, you agree to IDStream's <br>
+            <a href="#" class="text-white/60 hover:text-white underline underline-offset-4 mt-2 inline-block">Terms of Service</a> &amp; <a href="#" class="text-white/60 hover:text-white underline underline-offset-4 mt-2 inline-block">Privacy Policy</a>.
+        </p>
+    </div>
+</body>
+</html>

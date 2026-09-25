@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital ID Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="fixed top-0 inset-x-0 z-50 flex justify-between items-center px-8 md:px-12 py-6 pointer-events-auto mix-blend-difference">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 cursor-pointer group">
+            <div class="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center backdrop-blur-md group-hover:border-white transition-colors duration-300">
+                <div class="w-3 h-3 bg-white rounded-full transition-transform duration-300 group-hover:scale-110"></div>
+            </div>
+            <span class="text-lg font-medium tracking-[0.25em] text-white uppercase">IDStream</span>
+        </div>
+
+        <!-- Auth Buttons -->
+        <div class="flex items-center gap-8">
+            <a href="auth.html" class="text-sm font-medium tracking-wide text-white hover:text-gray-300 transition-colors duration-300 hidden md:block">
+                Log In
+            </a>
+            <a href="signup.html" class="text-sm font-medium tracking-wide bg-white/10 hover:bg-white text-white hover:text-black border border-white/20 px-6 py-2.5 rounded-full backdrop-blur-md transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                Sign Up
+            </a>
+        </div>
+    </header>
+
+    <!-- Scroll Container (Increased height for slower pacing) -->
+    <div id="scroll-container" class="relative w-full h-[1000vh] bg-[#050505]">
+        
+        <!-- Pinned Section -->
+        <div class="sticky top-0 left-0 w-full h-screen overflow-hidden bg-[#050505]">
+            
+            <!-- Video & Image Layers -->
+            <div class="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none bg-black">
+                <img id="hero-img" src="./Digitalidgenimg.jpg" alt="Hero" class="absolute w-full h-full object-cover">
+                <video id="vid-explode" src="./exploring techs.mp4" muted playsinline preload="auto" class="absolute w-full h-full object-cover opacity-0"></video>
+                <video id="vid-zoom" src="./zoom in.mp4" muted playsinline preload="auto" class="absolute w-full h-full object-cover opacity-0"></video>
+                <video id="vid-scurve" src="./s curve.mp4" muted playsinline preload="auto" class="absolute w-full h-full object-cover opacity-0"></video>
+                
+                <!-- Lighting Effects -->
+                <div id="light-flare" class="absolute inset-0 pointer-events-none mix-blend-overlay opacity-0" style="background: linear-gradient(135deg, transparent 15%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,1) 45%, rgba(255,255,255,1) 55%, rgba(255,255,255,0.4) 70%, transparent 85%); will-change: transform, opacity; transform: translateX(-100%);"></div>
+            </div>
+
+            <!-- Gradients -->
+            <div class="absolute inset-0 bg-gradient-to-l from-black/80 via-transparent to-transparent pointer-events-none"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/50 pointer-events-none"></div>
+
+            <!-- Video Watermark Obscurer (Bottom Right) -->
+            <div class="absolute bottom-0 right-0 w-40 h-40 bg-[#050505] blur-2xl z-20 pointer-events-none rounded-tl-full"></div>
+
+            <!-- Scroll 5: Magic Statement during S-Curve -->
+            <div id="magic-statement" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20 opacity-0" style="will-change: opacity, transform">
+                <h2 class="text-4xl md:text-6xl font-medium tracking-wide text-white drop-shadow-2xl">Seamless. Secure. Identity.</h2>
+            </div>
+
+            <!-- Scroll 6: Generate Text (Right Side) -->
+            <div id="generate-text" class="absolute inset-y-0 right-[8%] w-full max-w-lg z-20 pointer-events-none flex flex-col justify-center text-right opacity-0" style="will-change: opacity, transform">
+                <h2 class="text-5xl md:text-7xl font-bold text-white mb-4 leading-tight drop-shadow-lg">Generate</h2>
+                <p class="text-2xl text-white/80 drop-shadow-md">Create your digital student identity in seconds.</p>
+                <div class="mt-8 pointer-events-auto flex justify-end">
+                    <a href="signup.html" class="inline-block bg-white text-black px-10 py-4 rounded-full text-lg font-semibold hover:bg-gray-200 transition-colors shadow-lg">Start Generating</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="relative w-full bg-[#050505] text-white/50 py-24 px-8 md:px-12 border-t border-white/10 z-40">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            <div class="col-span-1 md:col-span-2">
+                <div class="flex items-center gap-3 mb-6 opacity-80">
+                    <div class="w-6 h-6 rounded-full border border-white/30 flex items-center justify-center">
+                        <div class="w-2 h-2 bg-white rounded-full"></div>
+                    </div>
+                    <span class="text-base font-medium tracking-[0.25em] text-white uppercase">IDStream</span>
+                </div>
+                <p class="text-sm max-w-sm leading-relaxed">
+                    The next generation of seamless, secure digital identity. Powered by advanced cryptographic layers and cinematic user experiences.
+                </p>
+            </div>
+            <div>
+                <h4 class="text-white/90 text-xs font-semibold tracking-widest uppercase mb-6">Platform</h4>
+                <ul class="space-y-4 text-sm">
+                    <li><a href="#" class="hover:text-white transition-colors">Features</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Security</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Enterprise</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white/90 text-xs font-semibold tracking-widest uppercase mb-6">Company</h4>
+                <ul class="space-y-4 text-sm">
+                    <li><a href="#" class="hover:text-white transition-colors">About Us</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="w-full max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs pt-8 border-t border-white/10">
+            <p>&copy; 2026 IDStream. All rights reserved.</p>
+            <div class="flex gap-8 mt-4 md:mt-0">
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const container = document.getElementById("scroll-container");
+            const heroImg = document.getElementById("hero-img");
+            const vidExplode = document.getElementById("vid-explode");
+            const vidZoom = document.getElementById("vid-zoom");
+            const vidSCurve = document.getElementById("vid-scurve");
+
+            const lightFlare = document.getElementById("light-flare");
+            const magicStatement = document.getElementById("magic-statement");
+            const generateText = document.getElementById("generate-text");
+
+            // Preload to parse metadata
+            [vidExplode, vidZoom, vidSCurve].forEach(vid => {
+                if(vid) {
+                    vid.currentTime = 0.01;
+                    vid.pause();
+                }
+            });
+
+            let targetProgress = 0;
+            let currentProgress = 0;
+
+            const mapRange = (val, start, end) => {
+                if (val <= start) return 0;
+                if (val >= end) return 1;
+                return (val - start) / (end - start);
+            };
+
+            window.addEventListener("scroll", () => {
+                if (!container) return;
+                const top = container.getBoundingClientRect().top;
+                const height = container.getBoundingClientRect().height;
+                const windowHeight = window.innerHeight;
+                
+                let p = -top / (height - windowHeight);
+                targetProgress = Math.max(0, Math.min(1, p));
+            }, { passive: true });
+
+            function render() {
+                // Feather-like buttery smooth lerp factor
+                currentProgress += (targetProgress - currentProgress) * 0.025;
+
+                if (Math.abs(targetProgress - currentProgress) > 0.0001) {
+                    const progress = currentProgress;
+
+                    // ----------------------------------------------------
+                    // SCROLL 1 & 2: LIGHTING EFFECTS (0.0 to 0.25)
+                    // ----------------------------------------------------
+                    // Cinematic Light Sweep Flare (0.0 to 0.25)
+                    if (lightFlare) {
+                        if (progress > 0.00 && progress < 0.25) {
+                            const flareP = mapRange(progress, 0.00, 0.25);
+                            lightFlare.style.transform = `translateX(${-100 + (flareP * 200)}%)`;
+                            
+                            let flareOp = 1;
+                            if (flareP < 0.2) flareOp = flareP / 0.2;
+                            if (flareP > 0.8) flareOp = (1 - flareP) / 0.2;
+                            lightFlare.style.opacity = flareOp.toString();
+                        } else {
+                            lightFlare.style.opacity = "0";
+                        }
+                    }
+
+                    // ----------------------------------------------------
+                    // SCROLL 3: EXPLODE PHONE (0.25 to 0.45)
+                    // ----------------------------------------------------
+                    // Hard cut hero image at 0.25 to prevent ghosting overlap
+                    if (heroImg) {
+                        heroImg.style.opacity = progress < 0.25 ? "1" : "0";
+                    }
+                    
+                    const scrubVideo = (vid, pStart, pEnd, stayVisibleAfter = false) => {
+                        if (!vid || vid.readyState < 2 || !vid.duration) return;
+                        
+                        // Hard cut logic to absolutely prevent any 'white cast' overlapping frames
+                        let isActive = (progress >= pStart && progress < pEnd);
+                        if (stayVisibleAfter && progress >= pEnd) isActive = true;
+                        
+                        vid.style.opacity = isActive ? "1" : "0";
+                        
+                        // Scrub video timeline if it's currently active
+                        if (isActive) {
+                            let p = mapRange(progress, pStart, pEnd);
+                            
+                            // Apply smoothstep easing for feather-like motion
+                            const easeP = p * p * (3 - 2 * p);
+                            const targetTime = easeP * vid.duration;
+                            
+                            // Directly set currentTime for raw floating smoothness
+                            if (Math.abs(vid.currentTime - targetTime) > 0.005) {
+                                vid.currentTime = targetTime;
+                            }
+                        }
+                    };
+
+                    scrubVideo(vidExplode, 0.25, 0.45);
+
+                    // ----------------------------------------------------
+                    // SCROLL 4: ZOOM INTO IC (0.45 to 0.65) - Sped up slightly
+                    // ----------------------------------------------------
+                    scrubVideo(vidZoom, 0.45, 0.65);
+
+                    // ----------------------------------------------------
+                    // SCROLL 5: S-CURVE (0.65 to 1.00) & MAGIC STATEMENT
+                    // ----------------------------------------------------
+                    scrubVideo(vidSCurve, 0.65, 1.00, true);
+
+                    if (magicStatement) {
+                        let magicOp = 0;
+                        let dropY = -50; // starts above the screen
+                        
+                        if (progress >= 0.70 && progress < 0.76) {
+                            const p = mapRange(progress, 0.70, 0.76);
+                            magicOp = p; // Fade in
+                            dropY = -50 * (1 - p); // Drop down to center
+                        } else if (progress >= 0.76 && progress < 0.82) {
+                            magicOp = 1; // Hold in center
+                            dropY = 0;
+                        } else if (progress >= 0.82 && progress < 0.88) {
+                            const p = mapRange(progress, 0.82, 0.88);
+                            magicOp = 1 - p; // Fade out BEFORE generate text comes in
+                            dropY = 0; 
+                        }
+                        magicStatement.style.opacity = magicOp.toString();
+                        magicStatement.style.transform = `translateY(${dropY}vh)`;
+                    }
+
+                    // ----------------------------------------------------
+                    // SCROLL 6: GENERATE TEXT ON RIGHT (0.88 to 1.0)
+                    // ----------------------------------------------------
+                    if (generateText) {
+                        const textOpacity = mapRange(progress, 0.88, 1.0);
+                        generateText.style.opacity = textOpacity.toString();
+                        generateText.style.transform = `translateY(${(1 - textOpacity) * 30}px)`;
+                    }
+                }
+
+                requestAnimationFrame(render);
+            }
+
+            render();
+            window.dispatchEvent(new Event("scroll"));
+        });
+    </script>
+</body>
+</html>
