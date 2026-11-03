@@ -1,227 +1,372 @@
-
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 
 export default function App() {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // Media refs
   const heroImgRef = useRef<HTMLImageElement>(null);
   const vidExplodeRef = useRef<HTMLVideoElement>(null);
   const vidZoomRef = useRef<HTMLVideoElement>(null);
   const vidSCurveRef = useRef<HTMLVideoElement>(null);
 
-  // Text refs
-  const titleContainerRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  
-  const text1Ref = useRef<HTMLDivElement>(null);
-  const text2Ref = useRef<HTMLDivElement>(null);
-  const text3Ref = useRef<HTMLDivElement>(null);
-  const text4Ref = useRef<HTMLDivElement>(null);
-  const text5Ref = useRef<HTMLDivElement>(null);
+  // FX & text refs
+  const lightFlareRef = useRef<HTMLDivElement>(null);
+  const magicStatementRef = useRef<HTMLDivElement>(null);
+  const generateTextRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const container = containerRef.current;
+    const heroImg = heroImgRef.current;
+    const vidExplode = vidExplodeRef.current;
+    const vidZoom = vidZoomRef.current;
+    const vidSCurve = vidSCurveRef.current;
+    const lightFlare = lightFlareRef.current;
+    const magicStatement = magicStatementRef.current;
+    const generateText = generateTextRef.current;
+
+    // Prime videos to first frame so scrubbing is instant
+    const videos = [vidExplode, vidZoom, vidSCurve];
+    videos.forEach((vid) => {
+      if (vid) {
+        vid.currentTime = 0.01;
+        vid.pause();
+      }
+    });
+
+    let targetProgress = 0;
+    let currentProgress = 0;
+    let animFrameId: number;
+
+    const mapRange = (val: number, start: number, end: number) => {
+      if (val <= start) return 0;
+      if (val >= end) return 1;
+      return (val - start) / (end - start);
+    };
+
     const handleScroll = () => {
-      if (!containerRef.current) return;
-
-      const { top, height } = containerRef.current.getBoundingClientRect();
+      if (!container) return;
+      const { top, height } = container.getBoundingClientRect();
       const windowHeight = window.innerHeight;
-      
-      // Calculate overall progress from 0 to 1
-      // top goes from 0 to -(height - windowHeight)
       const maxScroll = height - windowHeight;
-      let progress = -top / maxScroll;
-      progress = Math.max(0, Math.min(1, progress));
+      if (maxScroll <= 0) return;
 
-      // helper to map a sub-range [start, end] of progress to [0, 1]
-      const mapRange = (val: number, start: number, end: number) => {
-        if (val <= start) return 0;
-        if (val >= end) return 1;
-        return (val - start) / (end - start);
-      };
+      const p = -top / maxScroll;
+      targetProgress = Math.max(0, Math.min(1, p));
+    };
 
-      // 1. Title movement: Centered initially, moves left between 0% and 15%
-      const titleProgress = mapRange(progress, 0, 0.15);
-      if (titleContainerRef.current) {
-        // Move from center (left 50%, translate -50%) to left (left 8%, translate 0%)
-        titleContainerRef.current.style.left = `${50 - (titleProgress * 42)}%`;
-        titleContainerRef.current.style.transform = `translateX(-${50 - (titleProgress * 50)}%)`;
+    const scrubVideo = (
+      vid: HTMLVideoElement | null,
+      pStart: number,
+      pEnd: number,
+      progress: number,
+      stayVisibleAfter = false
+    ) => {
+      if (!vid) return;
+
+      const isActive =
+        (progress >= pStart && progress < pEnd) ||
+        (stayVisibleAfter && progress >= pEnd);
+
+      vid.style.opacity = isActive ? "1" : "0";
+
+      if (isActive && vid.duration && vid.readyState >= 2) {
+        const p = mapRange(progress, pStart, pEnd);
+        // Smoothstep easing for silky smooth scrub
+        const easeP = p * p * (3 - 2 * p);
+        const targetTime = easeP * vid.duration;
+
+        if (Math.abs(vid.currentTime - targetTime) > 0.008) {
+          vid.currentTime = targetTime;
+        }
       }
+    };
 
-      // 2. Media transitions
-      // 0-15%: Hero Image
-      // 15-40%: Explode Video
-      // 40-60%: Zoom Video
-      // 60-100%: SCurve Video
+    const render = () => {
+      // Smooth lerp factor for fluid inertia scroll
+      currentProgress += (targetProgress - currentProgress) * 0.04;
 
-      if (heroImgRef.current) {
-        heroImgRef.current.style.opacity = progress < 0.15 ? "1" : "0";
-      }
+      const progress = currentProgress;
 
-      if (vidExplodeRef.current) {
-        const explodeP = mapRange(progress, 0.15, 0.40);
-        vidExplodeRef.current.style.opacity = (progress >= 0.12 && progress < 0.40) ? "1" : "0";
-        if (vidExplodeRef.current.duration) {
-          vidExplodeRef.current.currentTime = explodeP * vidExplodeRef.current.duration;
+      // 1. LIGHT FLARE (0.00 - 0.25)
+      if (lightFlare) {
+        if (progress > 0.0 && progress < 0.25) {
+          const flareP = mapRange(progress, 0.0, 0.25);
+          lightFlare.style.transform = `translateX(${-100 + flareP * 200}%)`;
+
+          let flareOp = 1;
+          if (flareP < 0.2) flareOp = flareP / 0.2;
+          if (flareP > 0.8) flareOp = (1 - flareP) / 0.2;
+          lightFlare.style.opacity = flareOp.toString();
+        } else {
+          lightFlare.style.opacity = "0";
         }
       }
 
-      if (vidZoomRef.current) {
-        const zoomP = mapRange(progress, 0.40, 0.60);
-        vidZoomRef.current.style.opacity = (progress >= 0.40 && progress < 0.60) ? "1" : "0";
-        if (vidZoomRef.current.duration) {
-          vidZoomRef.current.currentTime = zoomP * vidZoomRef.current.duration;
-        }
+      // 2. HERO IMAGE (0.00 - 0.25)
+      if (heroImg) {
+        heroImg.style.opacity = progress < 0.25 ? "1" : "0";
       }
 
-      if (vidSCurveRef.current) {
-        const sCurveP = mapRange(progress, 0.60, 1.0);
-        vidSCurveRef.current.style.opacity = progress >= 0.60 ? "1" : "0";
-        if (vidSCurveRef.current.duration) {
-          vidSCurveRef.current.currentTime = sCurveP * vidSCurveRef.current.duration;
+      // 3. EXPLODE PHONE VIDEO (0.25 - 0.45)
+      scrubVideo(vidExplode, 0.25, 0.45, progress);
+
+      // 4. ZOOM INTO IC VIDEO (0.45 - 0.65)
+      scrubVideo(vidZoom, 0.45, 0.65, progress);
+
+      // 5. S-CURVE VIDEO (0.65 - 1.00)
+      scrubVideo(vidSCurve, 0.65, 1.0, progress, true);
+
+      // 6. MAGIC STATEMENT (0.70 - 0.88)
+      if (magicStatement) {
+        let magicOp = 0;
+        let dropY = -50;
+
+        if (progress >= 0.7 && progress < 0.76) {
+          const p = mapRange(progress, 0.7, 0.76);
+          magicOp = p;
+          dropY = -50 * (1 - p);
+        } else if (progress >= 0.76 && progress < 0.82) {
+          magicOp = 1;
+          dropY = 0;
+        } else if (progress >= 0.82 && progress < 0.88) {
+          const p = mapRange(progress, 0.82, 0.88);
+          magicOp = 1 - p;
+          dropY = 0;
         }
+
+        magicStatement.style.opacity = magicOp.toString();
+        magicStatement.style.transform = `translateY(${dropY}vh)`;
       }
 
-      // 3. Text Fades
-      const updateText = (ref: React.RefObject<HTMLDivElement | null>, start: number, mid: number, end: number) => {
-        if (!ref.current) return;
-        let opacity = 0;
-        if (progress >= start && progress < mid) {
-          opacity = mapRange(progress, start, mid);
-        } else if (progress >= mid && progress <= end) {
-          opacity = 1 - mapRange(progress, mid, end);
-        }
-        // Special case for the last text, stay visible at the end
-        if (end >= 1.0 && progress >= mid) {
-            opacity = 1;
-            if(progress >= 0.95) opacity = 1; 
-        }
-        ref.current.style.opacity = opacity.toString();
-        ref.current.style.transform = `translateY(${(1 - opacity) * 20}px)`;
-      };
+      // 7. GENERATE CALL TO ACTION (0.88 - 1.00)
+      if (generateText) {
+        const textOpacity = mapRange(progress, 0.88, 1.0);
+        generateText.style.opacity = textOpacity.toString();
+        generateText.style.transform = `translateY(${(1 - textOpacity) * 30}px)`;
+      }
 
-      // 0–15% 
-      updateText(text1Ref, 0, 0.05, 0.15);
-      // 15–40%
-      updateText(text2Ref, 0.15, 0.25, 0.40);
-      // 40–60%
-      updateText(text3Ref, 0.40, 0.50, 0.60);
-      // 60–80%
-      updateText(text4Ref, 0.60, 0.70, 0.80);
-      // 80–100%
-      updateText(text5Ref, 0.80, 0.90, 1.0);
+      animFrameId = requestAnimationFrame(render);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Initial call
-    return () => window.removeEventListener("scroll", handleScroll);
+    handleScroll();
+    render();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      cancelAnimationFrame(animFrameId);
+    };
   }, []);
 
   return (
-    <div ref={containerRef} className="relative w-full h-[600vh] bg-[#050505]">
-      {/* Sticky Container */}
-      <div className="sticky top-0 left-0 w-full h-screen overflow-hidden bg-[#050505]">
-        
-        {/* MEDIA LAYERS */}
-        <div className="absolute inset-0 w-full h-full flex items-center justify-center">
-          <img 
-            ref={heroImgRef}
-            src="/Digitalidgenimg.jpg" 
-            alt="Assembled Phone" 
-            className="absolute w-full h-full object-cover transition-opacity duration-300"
-          />
-          <video 
-            ref={vidExplodeRef}
-            src="/exploring techs.mp4"
-            muted playsInline preload="auto"
-            className="absolute w-full h-full object-cover opacity-0 transition-opacity duration-300"
-          />
-          <video 
-            ref={vidZoomRef}
-            src="/zoom in.mp4"
-            muted playsInline preload="auto"
-            className="absolute w-full h-full object-cover opacity-0 transition-opacity duration-300"
-          />
-          <video 
-            ref={vidSCurveRef}
-            src="/s curve.mp4"
-            muted playsInline preload="auto"
-            className="absolute w-full h-full object-cover opacity-0 transition-opacity duration-300"
-          />
+    <div className="bg-[#050505] text-white font-sans">
+      {/* Header Navigation */}
+      <header className="fixed top-0 inset-x-0 z-50 flex justify-between items-center px-8 md:px-12 py-6 pointer-events-auto mix-blend-difference">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-3 cursor-pointer group">
+          <div className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center backdrop-blur-md group-hover:border-white transition-colors duration-300">
+            <div className="w-3 h-3 bg-white rounded-full transition-transform duration-300 group-hover:scale-110"></div>
+          </div>
+          <span className="text-lg font-medium tracking-[0.25em] text-white uppercase">
+            IDStream
+          </span>
+        </Link>
+
+        {/* Auth Buttons */}
+        <div className="flex items-center gap-8">
+          <Link
+            to="/auth"
+            className="text-sm font-medium tracking-wide text-white hover:text-gray-300 transition-colors duration-300 hidden md:block"
+          >
+            Log In
+          </Link>
+          <Link
+            to="/signup"
+            className="text-sm font-medium tracking-wide bg-white/10 hover:bg-white text-white hover:text-black border border-white/20 px-6 py-2.5 rounded-full backdrop-blur-md transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+          >
+            Register First
+          </Link>
         </div>
+      </header>
 
-        {/* GRADIENT OVERLAYS (Optional, for text readability) */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/40 pointer-events-none" />
+      {/* Scroll Container */}
+      <div
+        ref={containerRef}
+        id="scroll-container"
+        className="relative w-full h-[1000vh] bg-[#050505]"
+      >
+        {/* Pinned Section */}
+        <div className="sticky top-0 left-0 w-full h-screen overflow-hidden bg-[#050505]">
+          {/* Video & Image Layers */}
+          <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none bg-black">
+            <img
+              ref={heroImgRef}
+              id="hero-img"
+              src="/Digitalidgenimg.jpg"
+              alt="Hero"
+              className="absolute w-full h-full object-cover transition-opacity duration-200"
+            />
+            <video
+              ref={vidExplodeRef}
+              id="vid-explode"
+              src="/exploring techs.mp4"
+              muted
+              playsInline
+              preload="auto"
+              className="absolute w-full h-full object-cover opacity-0 transition-opacity duration-200"
+            />
+            <video
+              ref={vidZoomRef}
+              id="vid-zoom"
+              src="/zoom in.mp4"
+              muted
+              playsInline
+              preload="auto"
+              className="absolute w-full h-full object-cover opacity-0 transition-opacity duration-200"
+            />
+            <video
+              ref={vidSCurveRef}
+              id="vid-scurve"
+              src="/s curve.mp4"
+              muted
+              playsInline
+              preload="auto"
+              className="absolute w-full h-full object-cover opacity-0 transition-opacity duration-200"
+            />
 
-        {/* TYPOGRAPHY OVERLAYS */}
-        
-        {/* Main Title (Moves Left) */}
-        <div 
-          ref={titleContainerRef} 
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-max z-10 transition-all duration-75"
-          style={{ willChange: "transform, left" }}
-        >
-          <h1 ref={titleRef} className="text-5xl md:text-7xl font-bold tracking-tight text-white drop-shadow-2xl">
-            Digital ID Generator
-          </h1>
-        </div>
-
-        {/* Text 1: 0-15% */}
-        <div ref={text1Ref} className="absolute top-1/3 left-1/2 -translate-x-1/2 mt-12 md:mt-16 text-center opacity-0 transition-all duration-75 w-full max-w-2xl px-4">
-          <p className="text-xl md:text-3xl text-white/80 font-medium">
-            A smarter way to carry your student identity.
-          </p>
-        </div>
-
-        {/* Left Aligned Texts for the rest of the sequence */}
-        <div className="absolute top-1/2 left-[8%] -translate-y-1/2 w-full max-w-md z-10">
-          
-          {/* Text 2: 15-40% */}
-          <div ref={text2Ref} className="absolute top-0 left-0 opacity-0 transition-all duration-75">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">
-              Built from the<br/>inside out.
-            </h2>
-            <p className="text-lg text-white/60">
-              Premium components designed to house your digital presence.
-            </p>
+            {/* Lighting Effects */}
+            <div
+              ref={lightFlareRef}
+              id="light-flare"
+              className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-0"
+              style={{
+                background:
+                  "linear-gradient(135deg, transparent 15%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,1) 45%, rgba(255,255,255,1) 55%, rgba(255,255,255,0.4) 70%, transparent 85%)",
+                willChange: "transform, opacity",
+                transform: "translateX(-100%)",
+              }}
+            />
           </div>
 
-          {/* Text 3: 40-60% */}
-          <div ref={text3Ref} className="absolute top-0 left-0 opacity-0 transition-all duration-75">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">
-              Precision.<br/>Security.<br/>Simplicity.
+          {/* Gradients */}
+          <div className="absolute inset-0 bg-gradient-to-l from-black/80 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/50 pointer-events-none" />
+
+          {/* Video Watermark Obscurer (Bottom Right) */}
+          <div className="absolute bottom-0 right-0 w-40 h-40 bg-[#050505] blur-2xl z-20 pointer-events-none rounded-tl-full" />
+
+          {/* Magic Statement during S-Curve */}
+          <div
+            ref={magicStatementRef}
+            id="magic-statement"
+            className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20 opacity-0"
+            style={{ willChange: "opacity, transform" }}
+          >
+            <h2 className="text-4xl md:text-6xl font-medium tracking-wide text-white drop-shadow-2xl">
+              Seamless. Secure. Identity.
             </h2>
-            <p className="text-lg text-white/60">
-              The central integrated circuit powers it all.
-            </p>
           </div>
 
-          {/* Text 4: 60-80% */}
-          <div ref={text4Ref} className="absolute top-0 left-0 opacity-0 transition-all duration-75">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">
-              One platform.<br/>Every student ID.
+          {/* Generate Call to Action (Right Side) */}
+          <div
+            ref={generateTextRef}
+            id="generate-text"
+            className="absolute inset-y-0 right-[8%] w-full max-w-lg z-20 pointer-events-none flex flex-col justify-center text-right opacity-0"
+            style={{ willChange: "opacity, transform" }}
+          >
+            <h2 className="text-5xl md:text-7xl font-bold text-white mb-4 leading-tight drop-shadow-lg">
+              Generate
             </h2>
-            <p className="text-lg text-white/60">
-              Generate any fictional college or university card on demand.
+            <p className="text-2xl text-white/80 drop-shadow-md">
+              Create your digital student identity in seconds.
             </p>
-          </div>
-
-          {/* Text 5: 80-100% */}
-          <div ref={text5Ref} className="absolute top-0 left-0 opacity-0 transition-all duration-75">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">
-              Your identity,<br/>beautifully digital.
-            </h2>
-            <Link href="/dashboard">
-              <button className="mt-8 bg-white text-black px-8 py-3 rounded-full text-base font-semibold hover:bg-gray-200 transition-colors">
+            <div className="mt-8 pointer-events-auto flex justify-end">
+              <Link
+                to="/signup"
+                className="inline-block bg-white text-black px-10 py-4 rounded-full text-lg font-semibold hover:bg-gray-200 transition-colors shadow-lg"
+              >
                 Start Generating
-              </button>
-            </Link>
+              </Link>
+            </div>
           </div>
-          
         </div>
-
       </div>
+
+      {/* Footer Section */}
+      <footer className="relative w-full bg-[#050505] text-white/50 py-24 px-8 md:px-12 border-t border-white/10 z-40">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+          <div className="col-span-1 md:col-span-2">
+            <div className="flex items-center gap-3 mb-6 opacity-80">
+              <div className="w-6 h-6 rounded-full border border-white/30 flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
+              <span className="text-base font-medium tracking-[0.25em] text-white uppercase">
+                IDStream
+              </span>
+            </div>
+            <p className="text-sm max-w-sm leading-relaxed">
+              The next generation of seamless, secure digital identity. Powered
+              by advanced cryptographic layers and cinematic user experiences.
+            </p>
+          </div>
+          <div>
+            <h4 className="text-white/90 text-xs font-semibold tracking-widest uppercase mb-6">
+              Platform
+            </h4>
+            <ul className="space-y-4 text-sm">
+              <li>
+                <Link to="/dashboard" className="hover:text-white transition-colors">
+                  Dashboard
+                </Link>
+              </li>
+              <li>
+                <a href="#scroll-container" className="hover:text-white transition-colors">
+                  Hardware Tech
+                </a>
+              </li>
+              <li>
+                <span className="hover:text-white transition-colors cursor-pointer">
+                  Security
+                </span>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-white/90 text-xs font-semibold tracking-widest uppercase mb-6">
+              Account
+            </h4>
+            <ul className="space-y-4 text-sm">
+              <li>
+                <Link to="/auth" className="hover:text-white transition-colors">
+                  Log In
+                </Link>
+              </li>
+              <li>
+                <Link to="/signup" className="hover:text-white transition-colors">
+                  Sign Up
+                </Link>
+              </li>
+              <li>
+                <Link to="/dashboard" className="hover:text-white transition-colors">
+                  Create Digital ID
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs pt-8 border-t border-white/10">
+          <p>&copy; 2026 IDStream. All rights reserved.</p>
+          <div className="flex gap-8 mt-4 md:mt-0">
+            <span className="hover:text-white transition-colors cursor-pointer">
+              Privacy Policy
+            </span>
+            <span className="hover:text-white transition-colors cursor-pointer">
+              Terms of Service
+            </span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
