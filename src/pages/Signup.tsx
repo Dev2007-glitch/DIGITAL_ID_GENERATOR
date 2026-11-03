@@ -14,7 +14,7 @@ import {
 import { type AuthSessionUser, formatNameFromEmail } from '../utils/googleAuth';
 
 export default function Signup() {
-  const [role, setRole] = useState<'student' | 'faculty' | 'security'>('student');
+  const [role, setRole] = useState<'student' | 'faculty' | 'security' | 'issuer' | 'admin'>('student');
   const [collegeKey, setCollegeKey] = useState<string>('vit');
   const [collegePin, setCollegePin] = useState<string>('');
   const [showPin, setShowPin] = useState(false);
@@ -222,16 +222,16 @@ export default function Signup() {
           </p>
         </div>
 
-        {/* 3 Dashboard Logins Selector: Student, Faculty, Security */}
+        {/* Campus Role Selector: Student, Faculty, Security, ID Issuer, Admin */}
         <div className="mb-5">
           <label className="text-[10px] font-bold tracking-widest text-white/50 uppercase block mb-2 text-center">
             Select Your Campus Role
           </label>
-          <div className="grid grid-cols-3 gap-1.5 p-1 bg-black/60 rounded-xl border border-white/10">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 p-1 bg-black/60 rounded-xl border border-white/10">
             <button
               type="button"
               onClick={() => setRole('student')}
-              className={`py-2.5 text-xs font-semibold rounded-lg transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 cursor-pointer ${
+              className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
                 role === 'student'
                   ? 'bg-white text-black shadow-md'
                   : 'text-white/60 hover:text-white hover:bg-white/5'
@@ -243,7 +243,7 @@ export default function Signup() {
             <button
               type="button"
               onClick={() => setRole('faculty')}
-              className={`py-2.5 text-xs font-semibold rounded-lg transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 cursor-pointer ${
+              className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
                 role === 'faculty'
                   ? 'bg-white text-black shadow-md'
                   : 'text-white/60 hover:text-white hover:bg-white/5'
@@ -255,7 +255,7 @@ export default function Signup() {
             <button
               type="button"
               onClick={() => setRole('security')}
-              className={`py-2.5 text-xs font-semibold rounded-lg transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 cursor-pointer ${
+              className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
                 role === 'security'
                   ? 'bg-white text-black shadow-md'
                   : 'text-white/60 hover:text-white hover:bg-white/5'
@@ -263,6 +263,30 @@ export default function Signup() {
             >
               <span>🛡️</span>
               <span>Security</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole('issuer')}
+              className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+                role === 'issuer'
+                  ? 'bg-white text-black shadow-md'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <span>🎛️</span>
+              <span>ID Issuer</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole('admin')}
+              className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+                role === 'admin'
+                  ? 'bg-white text-black shadow-md'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <span>⚡</span>
+              <span>Admin</span>
             </button>
           </div>
         </div>

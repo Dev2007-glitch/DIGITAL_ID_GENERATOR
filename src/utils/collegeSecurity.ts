@@ -29,7 +29,7 @@ export interface RegisteredInstitutionalUser {
   regNo: string;
   collegeKey: string;
   collegeName: string;
-  role: 'student' | 'faculty' | 'security';
+  role: 'student' | 'faculty' | 'security' | 'issuer' | 'admin';
   department?: string;
   password?: string;
   collegePin: string;
@@ -429,7 +429,7 @@ export function registerInstitutionalUser(params: {
   collegeKey: string;
   collegePin: string;
   password?: string;
-  role: 'student' | 'faculty' | 'security';
+  role: 'student' | 'faculty' | 'security' | 'issuer' | 'admin';
   department?: string;
 }): { success: boolean; error?: string; user?: RegisteredInstitutionalUser } {
   const { name, email, regNo, collegeKey, collegePin, password, role, department } = params;
@@ -526,7 +526,7 @@ export function authenticateInstitutionalUser(params: {
   collegePin: string;
   emailOrRegNo: string;
   password?: string;
-  role: 'student' | 'faculty' | 'security';
+  role: 'student' | 'faculty' | 'security' | 'issuer' | 'admin';
 }): { success: boolean; error?: string; user?: RegisteredInstitutionalUser } {
   const { collegeKey, collegePin, emailOrRegNo, password, role } = params;
 
@@ -570,6 +570,43 @@ export function authenticateInstitutionalUser(params: {
       localStorage.setItem('idstream_user', JSON.stringify(secUser));
     }
     return { success: true, user: secUser };
+  }
+
+  // Admin & ID Issuer Authentication
+  if (role === 'admin' || role === 'issuer') {
+    const cleanEmail = emailOrRegNo.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      return {
+        success: false,
+        error: `Please enter a valid institutional ${role === 'admin' ? 'Administrator' : 'ID Issuer'} email address.`,
+      };
+    }
+
+    if (password && password.length < 4) {
+      return { success: false, error: 'Password must be at least 4 characters.' };
+    }
+
+    const spec = COLLEGE_SECURITY_SPECS[collegeKey] || COLLEGE_SECURITY_SPECS.vit;
+    const roleUser: RegisteredInstitutionalUser = {
+      id: `${role}_${collegeKey}_${Date.now()}`,
+      name: role === 'admin' ? 'University System Administrator' : 'Campus ID Issuance Officer',
+      email: cleanEmail,
+      regNo: role === 'admin' ? `ADM-${collegeKey.toUpperCase()}-01` : `ISS-${collegeKey.toUpperCase()}-01`,
+      collegeKey,
+      collegeName: spec.name,
+      role,
+      department: role === 'admin' ? 'Office of University Administration & IT' : 'Student Affairs & Card Issuance Bureau',
+      collegePin: spec.campusPin,
+      isVerified: true,
+      registeredAt: new Date().toISOString(),
+      provider: 'institutional',
+    };
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('idstream_role', role);
+      localStorage.setItem('idstream_user', JSON.stringify(roleUser));
+    }
+    return { success: true, user: roleUser };
   }
 
   // 1. Verify Secret College PIN Code for Students & Faculty (Must be provided!)

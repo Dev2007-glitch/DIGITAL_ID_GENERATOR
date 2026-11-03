@@ -12,7 +12,7 @@ import {
 import { AUTHORIZED_SECURITY_EMAIL } from '../utils/collegeSecurity';
 
 interface GoogleSignInButtonProps {
-  role: 'student' | 'faculty' | 'security';
+  role: 'student' | 'faculty' | 'security' | 'issuer' | 'admin';
   collegeKey?: string;
   onSuccess: (user: AuthSessionUser) => void;
   onError?: (error: string) => void;
@@ -35,7 +35,7 @@ interface TokenClient {
 
 interface GoogleEvaluationResult {
   allowed: boolean;
-  effectiveRole: 'student' | 'faculty' | 'security';
+  effectiveRole: 'student' | 'faculty' | 'security' | 'issuer' | 'admin';
   errorMessage?: string;
 }
 
@@ -43,11 +43,11 @@ interface GoogleEvaluationResult {
  * Strict Security & Role Google Account Validator
  * Rule 1: For Security role -> EXCLUSIVELY vu.241fa04b57@gmail.com is permitted.
  * Rule 2: If vu.241fa04b57@gmail.com signs in anywhere -> Grant Chief Security Officer clearance.
- * Rule 3: For Student / Faculty -> Personal email block REMOVED. Any student/faculty Google account is permitted.
+ * Rule 3: For Student / Faculty / Issuer / Admin -> Handled according to role clearance.
  */
 function evaluateGoogleAccount(
   email: string | undefined,
-  requestedRole: 'student' | 'faculty' | 'security'
+  requestedRole: 'student' | 'faculty' | 'security' | 'issuer' | 'admin'
 ): GoogleEvaluationResult {
   const cleanEmail = (email || '').toLowerCase().trim();
   const isMasterSecurity =

@@ -6,6 +6,22 @@ import { jsPDF } from 'jspdf';
 import { getAuthenticatedUser, logoutGoogleSession, type AuthSessionUser, formatNameFromEmail } from '../utils/googleAuth';
 import { getSecurityMasterPins, AUTHORIZED_SECURITY_EMAIL, COLLEGE_SECURITY_SPECS, getRegisteredInstitutionalUsers } from '../utils/collegeSecurity';
 import GoogleOAuthModal from '../components/GoogleOAuthModal';
+import DigitalStudentWallet from '../components/DigitalStudentWallet';
+import LifecycleManager from '../components/LifecycleManager';
+import BulkIdGenerator from '../components/BulkIdGenerator';
+import SmartCampusAccess from '../components/SmartCampusAccess';
+import RealTimeAnalytics from '../components/RealTimeAnalytics';
+import AiQualityInspector from '../components/AiQualityInspector';
+import NfcVerifiableCredentialModal from '../components/NfcVerifiableCredentialModal';
+import AuditLogViewer from '../components/AuditLogViewer';
+import NotificationDrawer from '../components/NotificationDrawer';
+import {
+  findCredentialByRegNo,
+  generateSignedQrPayload,
+  verifyCredentialToken,
+  getNotifications,
+  type CredentialRecord,
+} from '../utils/idSecurityEngine';
 
 interface StudentRecord {
   regNo: string;
@@ -207,7 +223,7 @@ const DEFAULT_RECORDS: StudentRecord[] = [
 export default function Dashboard() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const urlRole = searchParams.get('role') as 'student' | 'faculty' | 'security' | null;
+  const urlRole = searchParams.get('role') as 'student' | 'faculty' | 'security' | 'issuer' | 'admin' | null;
 
   const [authUser, setAuthUser] = useState<AuthSessionUser | null>(() => getAuthenticatedUser());
 
@@ -223,22 +239,22 @@ export default function Dashboard() {
   const [roleAccessError, setRoleAccessError] = useState<string | null>(null);
 
   // Authenticated Session Role (Strict source of truth)
-  const sessionRole: 'student' | 'faculty' | 'security' = (() => {
-    const stored = typeof window !== 'undefined' ? (localStorage.getItem('idstream_role') as 'student' | 'faculty' | 'security' | null) : null;
-    return authUser?.role || (stored === 'student' || stored === 'faculty' || stored === 'security' ? stored : 'student');
+  const sessionRole: 'student' | 'faculty' | 'security' | 'issuer' | 'admin' = (() => {
+    const stored = typeof window !== 'undefined' ? (localStorage.getItem('idstream_role') as 'student' | 'faculty' | 'security' | 'issuer' | 'admin' | null) : null;
+    return authUser?.role || (stored && ['student', 'faculty', 'security', 'issuer', 'admin'].includes(stored) ? stored : 'student');
   })();
 
-  // Active Role state: Strictly locked to user session role (Students cannot see Faculty, Faculty cannot see Student)
-  const [activeRole, setActiveRole] = useState<'student' | 'faculty' | 'security'>(() => {
+  // Active Role state: Strictly locked to user session role
+  const [activeRole, setActiveRole] = useState<'student' | 'faculty' | 'security' | 'issuer' | 'admin'>(() => {
     if (sessionRole === 'student') return 'student';
     if (sessionRole === 'faculty') return 'faculty';
+    if (sessionRole === 'issuer') return 'issuer';
+    if (sessionRole === 'admin') return 'admin';
     if (sessionRole === 'security') {
       return isSecurityOfficer ? 'security' : 'student';
     }
     return 'student';
   });
-
-
 
   useEffect(() => {
     // Strictly isolate student and faculty from cross-navigating via URL
@@ -247,7 +263,7 @@ export default function Dashboard() {
         setRoleAccessError(
           urlRole === 'faculty'
             ? 'Access Denied: Students are strictly prohibited from viewing the Faculty Dashboard.'
-            : 'Access Denied: Students are strictly prohibited from accessing the Security Gate.'
+            : 'Access Denied: Students are strictly prohibited from accessing administrative or security portals.'
         );
         setActiveRole('student');
         setSearchParams({ role: 'student' }, { replace: true });
@@ -277,16 +293,32 @@ export default function Dashboard() {
       } else if (urlRole) {
         setActiveRole(urlRole);
       }
+    } else if (sessionRole === 'admin') {
+      if (urlRole) setActiveRole(urlRole);
+    } else if (sessionRole === 'issuer') {
+      if (urlRole) setActiveRole(urlRole);
     }
   }, [urlRole, sessionRole, isSecurityOfficer, navigate, setSearchParams]);
 
-  // Views: create (card generator), verify (ID verification), gate_scanner (security entry monitor), pin_vault (exclusive master PIN vault)
-  const [view, setView] = useState<'create' | 'verify' | 'gate_scanner' | 'pin_vault'>(() => {
-    return urlRole === 'security' && isSecurityOfficer ? 'gate_scanner' : 'create';
+  // Views: create, verify, gate_scanner, pin_vault, lifecycle, bulk_issuance, wallet, analytics, audit_logs
+  const [view, setView] = useState<
+    'create' | 'verify' | 'gate_scanner' | 'pin_vault' | 'lifecycle' | 'bulk_issuance' | 'wallet' | 'analytics' | 'audit_logs'
+  >(() => {
+    if (urlRole === 'security' && isSecurityOfficer) return 'gate_scanner';
+    if (sessionRole === 'admin') return 'analytics';
+    if (sessionRole === 'issuer') return 'lifecycle';
+    return 'create';
   });
   const [currentStep, setCurrentStep] = useState(1);
   const [isFlipped, setIsFlipped] = useState(false);
   const [downloading, setDownloading] = useState(false);
+
+  // New Modals for IDStream 2.0
+  const [isNfcModalOpen, setIsNfcModalOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notificationsCount, setNotificationsCount] = useState(() =>
+    getNotifications(authUser?.email).filter((n) => !n.read).length
+  );
 
   // Security Master PIN Vault State (Strictly for Security Officers)
   const [copiedPin, setCopiedPin] = useState<string | null>(null);
@@ -369,7 +401,7 @@ export default function Dashboard() {
   };
 
   // Helper to resolve the user's authentic registered profile
-  const resolveRegisteredUserProfile = (roleHint?: 'student' | 'faculty' | 'security') => {
+  const resolveRegisteredUserProfile = (roleHint?: 'student' | 'faculty' | 'security' | 'issuer' | 'admin') => {
     if (typeof window === 'undefined') {
       return {
         name: 'Student Candidate',
@@ -377,7 +409,7 @@ export default function Dashboard() {
         department: 'Computer Science',
         collegeKey: 'du',
         collegeName: 'University of Delhi',
-        role: (roleHint || 'student') as 'student' | 'faculty' | 'security',
+        role: (roleHint || 'student') as 'student' | 'faculty' | 'security' | 'issuer' | 'admin',
         photoUrl: '',
         email: '',
       };
@@ -414,7 +446,7 @@ export default function Dashboard() {
       matchingRegUser?.role ||
       (localStorage.getItem('idstream_role') as any) ||
       'student'
-    ) as 'student' | 'faculty' | 'security';
+    ) as 'student' | 'faculty' | 'security' | 'issuer' | 'admin';
 
     // Discard dummy placeholder names
     const isDummyName = (n?: string) => {
@@ -485,7 +517,7 @@ export default function Dashboard() {
   const [bloodGroup, setBloodGroup] = useState('O+');
   const [photoUrl, setPhotoUrl] = useState(initialProfile.photoUrl || '');
   const [isGoogleConfigOpen, setIsGoogleConfigOpen] = useState(false);
-  const [qrDestination, setQrDestination] = useState<'portal' | 'website'>('portal');
+  const [qrDestination, setQrDestination] = useState<'portal' | 'website' | 'secure_token'>('secure_token');
 
   // Sync authentic user profile on mount
   useEffect(() => {
@@ -607,7 +639,32 @@ export default function Dashboard() {
   const templateKey = detectTemplate(college, selectedCollegeKey);
   const portalInfo: CollegePortalInfo = COLLEGE_PORTALS[templateKey] || COLLEGE_PORTALS[selectedCollegeKey] || COLLEGE_PORTALS.du;
   const targetPortalUrl = activeRole === 'faculty' ? portalInfo.facultyPortalUrl : portalInfo.portalUrl;
-  const activeQrUrl = qrDestination === 'website' ? portalInfo.mainWebsiteUrl : targetPortalUrl;
+
+  const currentCredentialRecord: CredentialRecord = {
+    id: `cred_${selectedCollegeKey}_${regNo || '001'}`,
+    regNo: regNo || '21BCE0001',
+    name: name || 'Student Candidate',
+    email: authUser?.email || `${(regNo || 'student').toLowerCase()}@${portalInfo.domain}`,
+    collegeKey: selectedCollegeKey,
+    collegeName: portalInfo.name,
+    department: branch || 'Computer Science',
+    program: program || 'B.Tech',
+    year: year || '2024 - 2028',
+    role: activeRole === 'faculty' ? 'faculty' : 'student',
+    status: 'VALID',
+    issuedAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    bloodGroup,
+    photoUrl,
+    w3cCredentialId: `urn:uuid:${selectedCollegeKey}-${(regNo || '001').toLowerCase()}-2024`,
+  };
+
+  const activeQrUrl =
+    qrDestination === 'website'
+      ? portalInfo.mainWebsiteUrl
+      : qrDestination === 'secure_token'
+      ? generateSignedQrPayload(currentCredentialRecord)
+      : targetPortalUrl;
 
   const templateNames: Record<string, string> = {
     vit: 'VIT - Vellore Institute of Technology',
@@ -857,7 +914,7 @@ export default function Dashboard() {
   const handleVerify = () => {
     const query = verifyInput.trim();
     if (!query) {
-      setVerifyError('Please enter a Registration / Roll / Faculty Number to verify.');
+      setVerifyError('Please enter a Registration / Roll / Faculty Number or scan a signed QR token to verify.');
       setVerifiedRecord(null);
       return;
     }
@@ -867,6 +924,58 @@ export default function Dashboard() {
     setVerifiedRecord(null);
 
     setTimeout(() => {
+      // 1. Signed cryptographic QR token verification
+      if (query.includes('IDSTREAM-V2:') || query.includes('.')) {
+        const tokenRes = verifyCredentialToken(query);
+        if (tokenRes.isValid && tokenRes.record) {
+          const r = tokenRes.record;
+          setVerifiedRecord({
+            regNo: r.regNo,
+            name: r.name,
+            college: r.collegeName,
+            program: r.program,
+            branch: r.department,
+            year: r.year,
+            photoUrl: r.photoUrl,
+            role: r.role,
+          });
+          setVerifyLoading(false);
+          return;
+        } else {
+          setVerifyError(tokenRes.message || 'Cryptographic QR token is invalid, tampered, or expired.');
+          setVerifyLoading(false);
+          return;
+        }
+      }
+
+      // 2. IDStream 2.0 Credential Registry verification
+      const cred = findCredentialByRegNo(query);
+      if (cred) {
+        if (cred.status === 'SUSPENDED') {
+          setVerifyError(`Identity ${cred.regNo} has been SUSPENDED by University Administration.`);
+          setVerifyLoading(false);
+          return;
+        }
+        if (cred.status === 'REVOKED') {
+          setVerifyError(`Identity ${cred.regNo} has been permanently REVOKED.`);
+          setVerifyLoading(false);
+          return;
+        }
+        setVerifiedRecord({
+          regNo: cred.regNo,
+          name: cred.name,
+          college: cred.collegeName,
+          program: cred.program,
+          branch: cred.department,
+          year: cred.year,
+          photoUrl: cred.photoUrl,
+          role: cred.role,
+        });
+        setVerifyLoading(false);
+        return;
+      }
+
+      // 3. Fallback to existing student and demo records
       const record = lookupRecord(query);
       if (record) {
         setVerifiedRecord(record);
@@ -1911,6 +2020,25 @@ export default function Dashboard() {
                 </span>
               </div>
             )}
+            {sessionRole === 'admin' && (
+              <div className="hidden md:flex items-center gap-2.5 px-4 py-2 bg-purple-950/40 rounded-xl border border-purple-500/40 text-xs shadow-inner">
+                <span className="text-base">⚡</span>
+                <span className="font-bold text-purple-300 tracking-wide">University Admin Control</span>
+                <span className="text-white/30">•</span>
+                <span className="text-[10px] bg-purple-400/20 text-purple-200 px-2 py-0.5 rounded-full border border-purple-400/40 font-mono">
+                  Full Institutional Authority
+                </span>
+              </div>
+            )}
+            {sessionRole === 'issuer' && (
+              <div className="hidden md:flex items-center gap-2.5 px-4 py-2 bg-blue-950/40 rounded-xl border border-blue-500/40 text-xs shadow-inner">
+                <span className="text-base">🎛️</span>
+                <span className="font-bold text-blue-300 tracking-wide">ID Issuance Bureau</span>
+                <span className="text-[10px] bg-blue-400/20 text-blue-200 px-2 py-0.5 rounded-full border border-blue-400/40 font-mono">
+                  Approval Officer
+                </span>
+              </div>
+            )}
             {sessionRole === 'security' && (
               <div className="hidden md:flex items-center gap-2.5 px-4 py-2 bg-amber-950/40 rounded-xl border border-amber-500/40 text-xs shadow-inner">
                 <span className="text-base">🛡️</span>
@@ -1924,7 +2052,36 @@ export default function Dashboard() {
           </div>
 
           {/* Profile / Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* NFC & W3C Verifiable Credentials Modal Trigger */}
+            <button
+              type="button"
+              onClick={() => setIsNfcModalOpen(true)}
+              title="W3C Verifiable Credentials & Web NFC Smartcard"
+              className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-colors flex items-center gap-1.5 text-xs cursor-pointer"
+            >
+              <span className="text-sm">📡</span>
+              <span className="hidden md:inline font-mono text-[10px] text-white/60">NFC / W3C</span>
+            </button>
+
+            {/* Notifications Bell */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsNotificationsOpen(true);
+                setNotificationsCount(0);
+              }}
+              title="Campus Identity Notifications"
+              className="relative p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-colors flex items-center gap-1.5 text-xs cursor-pointer"
+            >
+              <span className="text-sm">🔔</span>
+              {notificationsCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-500 text-[9px] font-bold text-white flex items-center justify-center animate-pulse">
+                  {notificationsCount}
+                </span>
+              )}
+            </button>
+
             <button
               type="button"
               onClick={() => setIsGoogleConfigOpen(true)}
@@ -2001,57 +2158,171 @@ export default function Dashboard() {
           <div className="text-[10px] font-bold tracking-[0.2em] text-white/40 uppercase mb-4 px-4">
             {activeRole.toUpperCase()} MENU
           </div>
-          <nav className="space-y-2 flex-1">
-            {activeRole !== 'security' && (
+          <nav className="space-y-1.5 flex-1 overflow-y-auto pr-1">
+            {/* Student Specific Menu */}
+            {activeRole === 'student' && (
+              <>
+                <button
+                  onClick={() => setView('wallet')}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
+                    view === 'wallet' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span className="text-sm">📱</span>
+                  <span>Digital Student Wallet</span>
+                </button>
+                <button
+                  onClick={() => setView('create')}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
+                    view === 'create' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span className="text-sm">🪪</span>
+                  <span>View / Customize ID Card</span>
+                </button>
+              </>
+            )}
+
+            {/* Faculty Specific Menu */}
+            {activeRole === 'faculty' && (
               <button
                 onClick={() => setView('create')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm font-medium ${
+                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
                   view === 'create' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
                 }`}
               >
-                <svg className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                {activeRole === 'faculty' ? 'Generate Faculty ID' : 'Generate Student ID'}
+                <span className="text-sm">👨‍🏫</span>
+                <span>Generate Faculty ID</span>
               </button>
             )}
 
+            {/* Admin Specific Menu */}
+            {activeRole === 'admin' && (
+              <>
+                <button
+                  onClick={() => setView('analytics')}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
+                    view === 'analytics' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span className="text-sm">📊</span>
+                  <span>Real-Time Analytics</span>
+                </button>
+                <button
+                  onClick={() => setView('lifecycle')}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
+                    view === 'lifecycle' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span className="text-sm">🎛️</span>
+                  <span>ID Lifecycle & Approvals</span>
+                </button>
+                <button
+                  onClick={() => setView('bulk_issuance')}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
+                    view === 'bulk_issuance' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span className="text-sm">📦</span>
+                  <span>Bulk ID Generation</span>
+                </button>
+                <button
+                  onClick={() => setView('audit_logs')}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
+                    view === 'audit_logs' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span className="text-sm">📜</span>
+                  <span>Compliance Audit Logs</span>
+                </button>
+                <button
+                  onClick={() => setView('gate_scanner')}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
+                    view === 'gate_scanner' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span className="text-sm">🛡️</span>
+                  <span>Campus Gate Clearance</span>
+                </button>
+                <button
+                  onClick={() => setView('create')}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
+                    view === 'create' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span className="text-sm">🪪</span>
+                  <span>ID Card Generator</span>
+                </button>
+              </>
+            )}
+
+            {/* ID Issuer Specific Menu */}
+            {activeRole === 'issuer' && (
+              <>
+                <button
+                  onClick={() => setView('lifecycle')}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
+                    view === 'lifecycle' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span className="text-sm">🎛️</span>
+                  <span>ID Lifecycle & Approvals</span>
+                </button>
+                <button
+                  onClick={() => setView('bulk_issuance')}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
+                    view === 'bulk_issuance' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span className="text-sm">📦</span>
+                  <span>Bulk ID Generation</span>
+                </button>
+                <button
+                  onClick={() => setView('create')}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
+                    view === 'create' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <span className="text-sm">🪪</span>
+                  <span>ID Card Generator</span>
+                </button>
+              </>
+            )}
+
+            {/* Security Officer Specific Menu */}
             {activeRole === 'security' && (
               <>
                 <button
                   onClick={() => setView('gate_scanner')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm font-medium cursor-pointer ${
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
                     view === 'gate_scanner' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
                   }`}
                 >
-                  <svg className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                  </svg>
-                  Gate Entry Scanner
+                  <span className="text-sm">🛡️</span>
+                  <span>Gate Clearance Scanner</span>
                 </button>
 
                 <button
                   onClick={() => setView('pin_vault')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm font-medium cursor-pointer ${
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
                     view === 'pin_vault' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
                   }`}
                 >
-                  <span className="text-base">🔑</span>
+                  <span className="text-sm">🔑</span>
                   <span>Campus PIN Vault (Master)</span>
                 </button>
               </>
             )}
 
+            {/* Common Universal Verification Action */}
             <button
               onClick={() => setView('verify')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm font-medium ${
+              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
                 view === 'verify' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
               }`}
             >
-              <svg className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              Verify Credentials
+              <span className="text-sm">✓</span>
+              <span>Verify Credentials</span>
             </button>
           </nav>
 
@@ -2373,6 +2644,18 @@ export default function Dashboard() {
                             </div>
                           </div>
                         </div>
+
+                        {/* AI-Assisted Photo and Data Quality Inspector */}
+                        <div className="pt-2">
+                          <AiQualityInspector
+                            photoUrl={photoUrl}
+                            name={name}
+                            regNo={regNo}
+                            email={authUser?.email || `${(regNo || 'student').toLowerCase()}@${portalInfo.domain}`}
+                            program={program}
+                            department={branch}
+                          />
+                        </div>
                       </div>
                     )}
 
@@ -2661,6 +2944,22 @@ export default function Dashboard() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
+                          setQrDestination('secure_token');
+                        }}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                          qrDestination === 'secure_token'
+                            ? 'bg-purple-600 text-white shadow-[0_0_12px_rgba(147,51,234,0.4)]'
+                            : 'text-white/60 hover:text-white hover:bg-white/5'
+                        }`}
+                        title="Make QR code encode a cryptographically signed HMAC-SHA256 gate clearance token"
+                      >
+                        <span>🛡️</span>
+                        <span>Signed Gate Token</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setQrDestination('portal');
                         }}
                         className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
@@ -2796,8 +3095,93 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* VIEW: SECURITY GATE SCANNER */}
+          {/* VIEW: DIGITAL STUDENT WALLET (Feature 5) */}
+          {view === 'wallet' && (
+            <div className="w-full h-full flex flex-col p-6 sm:p-8 overflow-y-auto bg-[#050505]">
+              <div className="max-w-xl mx-auto w-full py-4">
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl font-black text-white tracking-wide flex items-center justify-center gap-2">
+                    <span>📱</span> Digital Student Wallet Pass
+                  </h2>
+                  <p className="text-xs text-white/50 mt-1">
+                    Cryptographically signed, rotating anti-tamper mobile credential for campus identification and gate access.
+                  </p>
+                </div>
+
+                <DigitalStudentWallet
+                  record={currentCredentialRecord}
+                  collegeLogoUrl={portalInfo.logoUrl}
+                  accentColor={portalInfo.accentColor}
+                  onDownloadSingle={() => handleDownloadPNG('front')}
+                  onRequestRenewal={() => {
+                    alert('Renewal request recorded and queued for University Registrar approval.');
+                  }}
+                  onRequestReplacement={() => {
+                    alert('Lost card replacement report logged with Campus Security.');
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* VIEW: ID LIFECYCLE MANAGEMENT (Feature 2) */}
+          {view === 'lifecycle' && (
+            <div className="w-full h-full flex flex-col p-6 sm:p-8 overflow-y-auto bg-[#050505]">
+              <div className="max-w-7xl mx-auto w-full">
+                <LifecycleManager
+                  actorEmail={authUser?.email || 'admin@university.edu'}
+                  actorRole={sessionRole}
+                  collegeKeyFilter={sessionRole === 'admin' ? undefined : selectedCollegeKey}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* VIEW: BULK ID GENERATION (Feature 4) */}
+          {view === 'bulk_issuance' && (
+            <div className="w-full h-full flex flex-col p-6 sm:p-8 overflow-y-auto bg-[#050505]">
+              <div className="max-w-6xl mx-auto w-full">
+                <BulkIdGenerator
+                  actorEmail={authUser?.email || 'admin@university.edu'}
+                  actorRole={sessionRole}
+                  collegeKey={selectedCollegeKey}
+                  collegeName={portalInfo.name}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* VIEW: REAL-TIME ANALYTICS (Feature 7) */}
+          {view === 'analytics' && (
+            <div className="w-full h-full flex flex-col p-6 sm:p-8 overflow-y-auto bg-[#050505]">
+              <div className="max-w-7xl mx-auto w-full">
+                <RealTimeAnalytics
+                  collegeKeyFilter={sessionRole === 'admin' ? undefined : selectedCollegeKey}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* VIEW: COMPLIANCE AUDIT LOGS (Feature 10) */}
+          {view === 'audit_logs' && (
+            <div className="w-full h-full flex flex-col p-6 sm:p-8 overflow-y-auto bg-[#050505]">
+              <div className="max-w-7xl mx-auto w-full">
+                <AuditLogViewer />
+              </div>
+            </div>
+          )}
+
+          {/* VIEW: SMART CAMPUS ACCESS & GATE SCANNER (Feature 6 & Feature 1) */}
           {view === 'gate_scanner' && (
+            <div className="w-full h-full flex flex-col p-6 sm:p-8 overflow-y-auto bg-[#050505]">
+              <div className="max-w-6xl mx-auto w-full space-y-6">
+                <SmartCampusAccess securityOfficerEmail={authUser?.email || AUTHORIZED_SECURITY_EMAIL} />
+              </div>
+            </div>
+          )}
+
+          {/* LEGACY COMPATIBILITY GATE SCANNER VIEW FALLBACK (Preserved) */}
+          {false && view === 'gate_scanner' && (
             <div className="w-full h-full flex flex-col p-8 overflow-y-auto bg-[#050505]">
               <div className="max-w-6xl mx-auto w-full space-y-6">
                 {/* Header Stats Strip */}
@@ -2881,12 +3265,12 @@ export default function Dashboard() {
                         <div className="text-emerald-400 font-black text-sm flex items-center gap-2">
                           CAMPUS GATE ACCESS GRANTED
                           <span className="bg-emerald-500/20 text-emerald-300 text-[9px] px-2 py-0.5 rounded border border-emerald-500/30 font-bold uppercase">
-                            {gateCheckResult.record.role?.toUpperCase() || 'STUDENT'}
+                            {gateCheckResult.record?.role?.toUpperCase() || 'STUDENT'}
                           </span>
                         </div>
-                        <div className="text-white font-bold text-base mt-0.5">{gateCheckResult.record.name}</div>
+                        <div className="text-white font-bold text-base mt-0.5">{gateCheckResult.record?.name}</div>
                         <div className="text-xs text-white/60">
-                          {gateCheckResult.record.college} &bull; ID: {gateCheckResult.record.regNo.toUpperCase()}
+                          {gateCheckResult.record?.college} &bull; ID: {gateCheckResult.record?.regNo?.toUpperCase()}
                         </div>
                       </div>
                       <div className="text-right">
@@ -3351,6 +3735,20 @@ export default function Dashboard() {
       <GoogleOAuthModal
         isOpen={isGoogleConfigOpen}
         onClose={() => setIsGoogleConfigOpen(false)}
+      />
+
+      {/* NFC & W3C Verifiable Credential Modal */}
+      <NfcVerifiableCredentialModal
+        record={currentCredentialRecord}
+        isOpen={isNfcModalOpen}
+        onClose={() => setIsNfcModalOpen(false)}
+      />
+
+      {/* Notifications Drawer */}
+      <NotificationDrawer
+        userEmail={authUser?.email || ''}
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
       />
     </div>
   );

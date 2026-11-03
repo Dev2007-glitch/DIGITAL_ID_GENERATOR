@@ -25,7 +25,7 @@ export interface GoogleUserPayload {
 export interface AuthSessionUser {
   name: string;
   email: string;
-  role: 'student' | 'faculty' | 'security';
+  role: 'student' | 'faculty' | 'security' | 'issuer' | 'admin';
   picture?: string;
   sub?: string;
   provider: 'google' | 'local' | 'institutional';
@@ -126,7 +126,7 @@ export function formatNameFromEmail(email: string): string {
  */
 export function processGoogleCredential(
   credential: string,
-  role: 'student' | 'faculty' | 'security'
+  role: 'student' | 'faculty' | 'security' | 'issuer' | 'admin'
 ): AuthSessionUser | null {
   const payload = parseJwt(credential);
   if (!payload || !payload.email) {
@@ -207,7 +207,7 @@ export async function fetchGoogleUserInfo(accessToken: string): Promise<GoogleUs
  */
 export function processGoogleUserProfile(
   profile: GoogleUserPayload,
-  role: 'student' | 'faculty' | 'security',
+  role: 'student' | 'faculty' | 'security' | 'issuer' | 'admin',
   accessToken?: string
 ): AuthSessionUser {
   // Cross-reference against registered institutional user database
@@ -250,7 +250,7 @@ export function processGoogleUserProfile(
  * Create a verified test/mock Google login session for immediate testing
  */
 export function createSimulatedGoogleLogin(
-  role: 'student' | 'faculty' | 'security',
+  role: 'student' | 'faculty' | 'security' | 'issuer' | 'admin',
   customEmail?: string
 ): AuthSessionUser {
   const email =
@@ -259,6 +259,10 @@ export function createSimulatedGoogleLogin(
       ? 'student.alex@university.edu'
       : role === 'faculty'
       ? 'dr.sarah.jenkins@university.edu'
+      : role === 'issuer'
+      ? 'issuer@university.edu'
+      : role === 'admin'
+      ? 'admin@university.edu'
       : 'security.officer@campus.edu');
 
   // Check if email matches an existing registered institutional identity
