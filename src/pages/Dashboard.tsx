@@ -2444,69 +2444,59 @@ export default function Dashboard() {
                       <div className="bg-white/5 border border-white/10 p-6 rounded-xl space-y-5">
                         <div>
                           <div className="flex items-center justify-between mb-1">
-                            <h2 className="text-xl font-bold flex items-center gap-2">
+                            <h2 className="text-xl font-bold flex items-center gap-2 text-white">
                               <span>🏛️</span>
                               <span>Enrolled Institution</span>
                             </h2>
-                            <span className="text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                            <span className="text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-full flex items-center gap-1.5">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                              Template Locked
+                              University Template Locked
                             </span>
                           </div>
-                          <p className="text-xs text-white/50 leading-relaxed">
-                            Under institutional credential policy, ID card generation is strictly locked to your verified university. You can switch between certified partner institutions below.
+                          <p className="text-xs text-slate-300 leading-relaxed">
+                            Under institutional credential policy, your digital identity is exclusively bound to your registered university (<strong className="text-white">{portalInfo.name}</strong>). Only this official template will be rendered.
                           </p>
                         </div>
 
-                        {/* Interactive University Template Selector */}
-                        <div className="space-y-1.5 p-3.5 bg-black/60 rounded-xl border border-blue-500/30">
-                          <label className="text-[10px] font-bold tracking-widest text-blue-300 uppercase block flex items-center justify-between">
-                            <span className="flex items-center gap-1.5">
+                        {/* Strictly Locked University Identity Banner (No Dropdown - Only Selected University) */}
+                        <div className="p-4 rounded-xl bg-gradient-to-r from-blue-950/40 via-[#0a0f1d] to-black border border-blue-500/40 shadow-lg space-y-3">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs font-bold tracking-wider text-blue-200 uppercase flex items-center gap-2">
                               <span>🏛️</span>
-                              <span>Select / Switch University Card Template</span>
+                              <span>Selected University Card Template</span>
+                            </label>
+                            <span className="text-xs font-mono font-bold text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                              Single University Active
                             </span>
-                            <span className="text-emerald-400 font-mono text-[9.5px]">
-                              Instant Card Render
+                          </div>
+
+                          {/* Only This University Display */}
+                          <div className="w-full bg-[#0a0a10] border border-blue-400/50 rounded-xl px-4 py-3.5 flex items-center justify-between shadow-inner">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center shrink-0 overflow-hidden p-1 shadow-inner">
+                                {portalInfo.logoUrl ? (
+                                  <img src={portalInfo.logoUrl} alt={portalInfo.shortName} className="w-full h-full object-contain" />
+                                ) : (
+                                  <span className="text-lg">🎓</span>
+                                )}
+                              </div>
+                              <div>
+                                <div className="text-sm font-bold text-white tracking-wide">
+                                  {portalInfo.name} ({portalInfo.shortName})
+                                </div>
+                                <div className="text-xs text-slate-300 mt-0.5 font-medium">
+                                  Official {portalInfo.shortName} Template • Verified Enrollment
+                                </div>
+                              </div>
+                            </div>
+                            <span className="text-xs font-mono font-bold text-blue-300 bg-blue-500/20 border border-blue-400/30 px-2.5 py-1 rounded-lg">
+                              🔒 Locked
                             </span>
-                          </label>
-                          <select
-                            value={selectedCollegeKey}
-                            onChange={(e) => {
-                              const newKey = e.target.value;
-                              const newSpec = COLLEGE_SECURITY_SPECS[newKey];
-                              if (newSpec) {
-                                setSelectedCollegeKey(newKey);
-                                setCollege(newSpec.name);
-                                localStorage.setItem('idstream_selected_college', newKey);
-                                localStorage.setItem('idstream_college_name', newSpec.name);
-                                if (newSpec.rollPlaceholder) {
-                                  setRegNo(newSpec.rollPlaceholder.replace('e.g. ', ''));
-                                }
-                                try {
-                                  const raw = localStorage.getItem('idstream_user');
-                                  if (raw) {
-                                    const u = JSON.parse(raw);
-                                    u.collegeKey = newKey;
-                                    u.college = newSpec.name;
-                                    u.collegeShortName = newSpec.shortName;
-                                    localStorage.setItem('idstream_user', JSON.stringify(u));
-                                  }
-                                } catch {
-                                  // ignore
-                                }
-                              }
-                            }}
-                            className="w-full bg-[#0a0a10] border border-blue-400/40 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-400 transition-colors font-medium shadow-inner"
-                          >
-                            {Object.values(COLLEGE_SECURITY_SPECS).map((spec) => (
-                              <option key={spec.key} value={spec.key} className="bg-[#111] text-white">
-                                {spec.name} ({spec.shortName})
-                              </option>
-                            ))}
-                          </select>
+                          </div>
                         </div>
 
-                        {/* Locked Institution Showcase Card */}
+                        {/* Locked Institution Showcase Details */}
                         <div className="p-4 rounded-xl bg-gradient-to-br from-blue-950/40 via-black to-[#0a101f] border border-blue-500/30 space-y-3.5">
                           <div className="flex items-start gap-3.5">
                             <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 overflow-hidden p-1.5 shadow-inner">
@@ -2517,35 +2507,35 @@ export default function Dashboard() {
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-[10px] font-mono uppercase tracking-wider text-blue-400 font-bold">
+                              <div className="text-xs font-mono uppercase tracking-wider text-blue-400 font-bold">
                                 Authenticated Institution
                               </div>
-                              <div className="text-sm font-bold text-white leading-tight">
+                              <div className="text-base font-bold text-white leading-tight">
                                 {portalInfo.name}
                               </div>
-                              <div className="text-xs text-white/60 font-medium mt-0.5">
+                              <div className="text-xs text-slate-300 font-medium mt-0.5">
                                 {portalInfo.shortName} • {activeRole === 'faculty' ? 'Faculty Portal' : 'Student Portal'}
                               </div>
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-[11px]">
-                            <div className="bg-black/60 p-2.5 rounded-lg border border-white/5">
-                              <div className="text-[9px] text-white/40 uppercase font-bold">Official Portal</div>
+                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-xs">
+                            <div className="bg-black/60 p-2.5 rounded-lg border border-white/10">
+                              <div className="text-[10px] text-slate-300 uppercase font-bold mb-0.5">Official Portal</div>
                               <div className="font-semibold text-blue-300 truncate">{portalInfo.portalName}</div>
                             </div>
-                            <div className="bg-black/60 p-2.5 rounded-lg border border-white/5">
-                              <div className="text-[9px] text-white/40 uppercase font-bold">Campus Domain</div>
-                              <div className="font-mono text-white/70 truncate">{portalInfo.domain}</div>
+                            <div className="bg-black/60 p-2.5 rounded-lg border border-white/10">
+                              <div className="text-[10px] text-slate-300 uppercase font-bold mb-0.5">Campus Domain</div>
+                              <div className="font-mono text-slate-200 truncate">{portalInfo.domain}</div>
                             </div>
                           </div>
 
-                          <div className="p-2.5 rounded-lg bg-emerald-950/30 border border-emerald-500/30 text-[11px] text-emerald-300 flex items-center justify-between">
+                          <div className="p-2.5 rounded-lg bg-emerald-950/30 border border-emerald-500/30 text-xs text-emerald-300 flex items-center justify-between">
                             <span className="flex items-center gap-1.5 font-medium">
                               <span>🔒</span>
                               <span>Official {portalInfo.shortName} ID Card Template Active</span>
                             </span>
-                            <span className="text-[9.5px] font-mono text-emerald-400/80 bg-emerald-500/10 px-2 py-0.5 rounded">
+                            <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded font-bold">
                               Anti-Malpractice Active
                             </span>
                           </div>
@@ -2554,7 +2544,7 @@ export default function Dashboard() {
                         <button
                           type="button"
                           onClick={() => setCurrentStep(2)}
-                          className="w-full py-3.5 bg-white hover:bg-gray-200 text-black font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-[0.99]"
+                          className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-blue-600/30 active:scale-[0.99]"
                         >
                           <span>Proceed to Personal Details</span>
                           <span>→</span>
