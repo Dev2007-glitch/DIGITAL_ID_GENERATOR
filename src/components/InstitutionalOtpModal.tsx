@@ -32,11 +32,13 @@ export default function InstitutionalOtpModal({
   const [dispatchMessage, setDispatchMessage] = useState<string>('');
   const [showKeyConfig, setShowKeyConfig] = useState(false);
   const [resendKeyInput, setResendKeyInput] = useState(getResendApiKey());
+  const [activeCode, setActiveCode] = useState<string>('');
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Function to dispatch real email to the recipient's inbox
   const dispatchCode = async (codeToDispatch: string) => {
+    setActiveCode(codeToDispatch);
     setDispatchStatus('sending');
     setDispatchMessage('Transmitting security verification code to campus mail servers...');
 
@@ -47,15 +49,19 @@ export default function InstitutionalOtpModal({
       role: 'Student / Faculty',
     });
 
+    if (result.code) {
+      setActiveCode(result.code);
+    }
+
     if (result.success) {
       setDispatchStatus('sent');
       setDispatchMessage(`Verification email successfully delivered to ${email}. Please check your inbox.`);
     } else if (result.status === 'pending_key') {
       setDispatchStatus('pending_key');
-      setDispatchMessage('Connect your Resend API Key to deliver live emails directly to your Gmail inbox.');
+      setDispatchMessage('Resend API key is unconfigured in Vercel. Instant campus security code generated below.');
     } else {
       setDispatchStatus('failed');
-      setDispatchMessage(result.error || 'Failed to dispatch email. Please check your network or API key.');
+      setDispatchMessage(result.error || 'Mail dispatch restricted or delayed. Use instant security code below.');
     }
   };
 
@@ -63,6 +69,7 @@ export default function InstitutionalOtpModal({
   useEffect(() => {
     if (isOpen && email) {
       const { code } = sendInstitutionalVerificationCode(email);
+      setActiveCode(code);
       setDigits(['', '', '', '', '', '']);
       setErrorMsg(null);
       setTimeLeft(600);
@@ -275,6 +282,38 @@ export default function InstitutionalOtpModal({
               {hasResendApiKey() ? '⚙️ Resend Key Active' : '⚙️ Resend API Key Settings'}
             </button>
           </div>
+        </div>
+
+        {/* Instant Backup Verification Code Card */}
+        <div className="mb-5 p-3.5 rounded-xl bg-gradient-to-r from-blue-950/60 via-slate-900 to-indigo-950/40 border border-blue-400/40 flex items-center justify-between gap-3 shadow-lg">
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-blue-300 flex items-center gap-1.5">
+              <span>⚡</span>
+              <span>Instant Security Code</span>
+              <span className="text-[9px] bg-blue-500/20 text-blue-300 border border-blue-400/30 px-1.5 py-0.5 rounded font-mono">
+                Live Fallback
+              </span>
+            </div>
+            <div className="text-[11px] text-white/70 mt-0.5">
+              If your email is delayed by spam filters or unconfigured Resend key:
+            </div>
+            <div className="mt-1 font-mono text-xl font-black text-sky-400 tracking-[0.25em]">
+              {activeCode || '••••••'}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (activeCode) {
+                setDigits(activeCode.split(''));
+                setErrorMsg(null);
+              }
+            }}
+            className="px-3.5 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white font-bold text-xs rounded-xl transition-all shrink-0 cursor-pointer shadow-md active:scale-95 flex items-center gap-1.5"
+          >
+            <span>⚡</span>
+            <span>Auto-Fill</span>
+          </button>
         </div>
 
         {/* Resend API Key Configuration Box (Expands when clicked or when key needed) */}

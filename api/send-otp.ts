@@ -31,9 +31,11 @@ export default async function handler(req: any, res: any) {
   }
 
   if (!activeKey) {
-    return res.status(400).json({
-      error: 'RESEND_API_KEY is not configured. Please configure your Resend API Key in Vercel Environment Variables or in the settings modal.',
+    return res.status(200).json({
+      success: false,
       status: 'pending_key',
+      code,
+      message: 'RESEND_API_KEY is not configured in Vercel environment variables. Verification code provided directly on screen.',
     });
   }
 
@@ -103,8 +105,11 @@ export default async function handler(req: any, res: any) {
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(response.status).json({
-        error: data.message || 'Resend API returned an error dispatching email.',
+      return res.status(200).json({
+        success: false,
+        status: 'resend_error',
+        code,
+        error: data.message || 'Resend API rejected email dispatch. Use instant verification code.',
         details: data,
       });
     }
@@ -115,8 +120,11 @@ export default async function handler(req: any, res: any) {
       recipient: to,
     });
   } catch (err: any) {
-    return res.status(500).json({
-      error: err.message || 'Failed to dispatch email via Resend API.',
+    return res.status(200).json({
+      success: false,
+      status: 'failed',
+      code,
+      error: err.message || 'Failed to dispatch email via Resend API. Use instant verification code.',
     });
   }
 }

@@ -18,6 +18,7 @@ export interface EmailDispatchResult {
   messageId?: string;
   error?: string;
   status: 'sent' | 'pending_key' | 'failed';
+  code?: string;
 }
 
 /**
@@ -159,6 +160,14 @@ export async function sendRealVerificationEmail(params: EmailDispatchParams): Pr
           success: true,
           messageId: data.messageId || data.id,
           status: 'sent',
+          code: data.code || code,
+        };
+      } else {
+        return {
+          success: false,
+          status: data.status === 'pending_key' ? 'pending_key' : 'failed',
+          error: data.error || data.message || 'Resend email dispatch pending.',
+          code: data.code || code,
         };
       }
     }
