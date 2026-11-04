@@ -2155,7 +2155,7 @@ export default function Dashboard() {
       <div className="flex flex-1 max-w-[1600px] mx-auto w-full h-[calc(100vh-80px)] overflow-hidden relative">
         {/* Sidebar Navigation */}
         <aside className="w-64 border-r border-white/10 bg-[#050505] flex flex-col py-8 px-4 h-full shrink-0">
-          <div className="text-[10px] font-bold tracking-[0.2em] text-white/40 uppercase mb-4 px-4">
+          <div className="text-xs font-bold tracking-[0.2em] text-slate-300 uppercase mb-4 px-4">
             {activeRole.toUpperCase()} MENU
           </div>
           <nav className="space-y-1.5 flex-1 overflow-y-auto pr-1">
@@ -2165,7 +2165,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setView('wallet')}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                    view === 'wallet' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    view === 'wallet' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <span className="text-sm">📱</span>
@@ -2174,7 +2174,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setView('create')}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                    view === 'create' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    view === 'create' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <span className="text-sm">🪪</span>
@@ -2188,7 +2188,7 @@ export default function Dashboard() {
               <button
                 onClick={() => setView('create')}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                  view === 'create' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  view === 'create' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 <span className="text-sm">👨‍🏫</span>
@@ -2202,7 +2202,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setView('analytics')}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                    view === 'analytics' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    view === 'analytics' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <span className="text-sm">📊</span>
@@ -2211,7 +2211,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setView('lifecycle')}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                    view === 'lifecycle' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    view === 'lifecycle' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <span className="text-sm">🎛️</span>
@@ -2220,7 +2220,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setView('bulk_issuance')}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                    view === 'bulk_issuance' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    view === 'bulk_issuance' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <span className="text-sm">📦</span>
@@ -2229,7 +2229,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setView('audit_logs')}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                    view === 'audit_logs' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    view === 'audit_logs' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <span className="text-sm">📜</span>
@@ -2238,7 +2238,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setView('gate_scanner')}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                    view === 'gate_scanner' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    view === 'gate_scanner' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <span className="text-sm">🛡️</span>
@@ -2247,7 +2247,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setView('create')}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                    view === 'create' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    view === 'create' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <span className="text-sm">🪪</span>
@@ -2262,7 +2262,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setView('lifecycle')}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                    view === 'lifecycle' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    view === 'lifecycle' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <span className="text-sm">🎛️</span>
@@ -2271,7 +2271,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setView('bulk_issuance')}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                    view === 'bulk_issuance' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    view === 'bulk_issuance' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <span className="text-sm">📦</span>
@@ -2280,7 +2280,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setView('create')}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                    view === 'create' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    view === 'create' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <span className="text-sm">🪪</span>
@@ -2295,7 +2295,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setView('gate_scanner')}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                    view === 'gate_scanner' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    view === 'gate_scanner' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <span className="text-sm">🛡️</span>
@@ -2305,7 +2305,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setView('pin_vault')}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                    view === 'pin_vault' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    view === 'pin_vault' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   <span className="text-sm">🔑</span>
@@ -2318,7 +2318,7 @@ export default function Dashboard() {
             <button
               onClick={() => setView('verify')}
               className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-xs font-semibold cursor-pointer ${
-                view === 'verify' ? 'bg-white/10 text-white shadow-sm' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                view === 'verify' ? 'bg-white/10 text-white shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'
               }`}
             >
               <span className="text-sm">✓</span>
@@ -2328,7 +2328,7 @@ export default function Dashboard() {
 
           {/* Active Clearance Sidebar Badge (No cross-role switching for Student / Faculty) */}
           <div className="mb-4 pt-4 border-t border-white/10">
-            <div className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-2 px-1">Active Clearance</div>
+            <div className="text-xs font-bold tracking-widest text-slate-300 uppercase mb-2 px-1">Active Clearance</div>
             {sessionRole === 'student' ? (
               <div className="p-3 bg-blue-950/20 border border-blue-500/20 rounded-xl text-xs space-y-1">
                 <div className="flex items-center gap-1.5 font-bold text-blue-300">
@@ -2569,11 +2569,11 @@ export default function Dashboard() {
                           <h2 className="text-xl font-bold mb-1">
                             {activeRole === 'faculty' ? 'Faculty Details' : 'Student Details'}
                           </h2>
-                          <p className="text-xs text-white/40">Enter identity information and photo.</p>
+                          <p className="text-xs text-slate-300">Enter identity information and photo.</p>
                         </div>
 
                         <div>
-                          <label className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-1.5 block">
+                          <label className="text-xs font-bold tracking-wider text-slate-200 uppercase mb-1.5 block">
                             {activeRole === 'faculty' ? 'Faculty Member Name' : 'Full Name'}
                           </label>
                           <input
@@ -2581,12 +2581,12 @@ export default function Dashboard() {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder={activeRole === 'faculty' ? 'e.g. Faculty Member Name' : 'Candidate Full Name'}
-                            className="w-full bg-[#050505] border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-white/30 transition-colors"
+                            className="w-full bg-[#0a0a0f] border border-white/20 hover:border-white/35 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 transition-colors"
                           />
                         </div>
 
                         <div>
-                          <label className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-1.5 block">
+                          <label className="text-xs font-bold tracking-wider text-slate-200 uppercase mb-1.5 block">
                             {activeRole === 'faculty' ? 'Employee / Faculty ID' : 'Registration / Roll No.'}
                           </label>
                           <input
@@ -2594,12 +2594,12 @@ export default function Dashboard() {
                             value={regNo}
                             onChange={(e) => setRegNo(e.target.value)}
                             placeholder={activeRole === 'faculty' ? 'e.g. FAC-PCE-402' : 'e.g. 21BCE1042'}
-                            className="w-full bg-[#050505] border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-white/30 transition-colors uppercase"
+                            className="w-full bg-[#0a0a0f] border border-white/20 hover:border-white/35 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 transition-colors uppercase font-mono"
                           />
                         </div>
 
                         <div>
-                          <label className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-1.5 block">
+                          <label className="text-xs font-bold tracking-wider text-slate-200 uppercase mb-1.5 block">
                             Photo Upload
                           </label>
                           <div className="flex items-center gap-4">
@@ -2628,7 +2628,7 @@ export default function Dashboard() {
                               <button
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
-                                className="bg-white/10 hover:bg-white/20 border border-white/10 text-xs px-4 py-2.5 rounded transition-colors font-medium"
+                                className="bg-white/10 hover:bg-white/20 border border-white/20 text-xs px-4 py-2.5 rounded transition-colors font-medium text-white cursor-pointer"
                               >
                                 {photoUrl ? 'Change Photo' : 'Upload Image'}
                               </button>
@@ -2636,7 +2636,7 @@ export default function Dashboard() {
                                 <button
                                   type="button"
                                   onClick={() => setPhotoUrl('')}
-                                  className="text-white/40 hover:text-red-400 text-xs px-2 py-2.5 transition-colors"
+                                  className="text-slate-400 hover:text-red-400 text-xs px-2 py-2.5 transition-colors cursor-pointer"
                                 >
                                   Remove
                                 </button>
@@ -2666,13 +2666,13 @@ export default function Dashboard() {
                           <h2 className="text-xl font-bold mb-1">
                             {activeRole === 'faculty' ? 'Faculty Credentials' : 'Academic Profile'}
                           </h2>
-                          <p className="text-xs text-white/40">
+                          <p className="text-xs text-slate-300">
                             {activeRole === 'faculty' ? 'Designation and department.' : 'Course, branch, and validity period.'}
                           </p>
                         </div>
 
                         <div>
-                          <label className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-1.5 block">
+                          <label className="text-xs font-bold tracking-wider text-slate-200 uppercase mb-1.5 block">
                             {activeRole === 'faculty' ? 'Academic Designation' : 'Program / Degree'}
                           </label>
                           <input
@@ -2680,12 +2680,12 @@ export default function Dashboard() {
                             value={program}
                             onChange={(e) => setProgram(e.target.value)}
                             placeholder={activeRole === 'faculty' ? 'e.g. Professor & HOD' : 'e.g. B.Tech, B.Sc'}
-                            className="w-full bg-[#050505] border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-white/30 transition-colors"
+                            className="w-full bg-[#0a0a0f] border border-white/20 hover:border-white/35 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 transition-colors"
                           />
                         </div>
 
                         <div>
-                          <label className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-1.5 block">
+                          <label className="text-xs font-bold tracking-wider text-slate-200 uppercase mb-1.5 block">
                             {activeRole === 'faculty' ? 'Academic Department' : 'Branch / Major'}
                           </label>
                           <input
@@ -2693,13 +2693,13 @@ export default function Dashboard() {
                             value={branch}
                             onChange={(e) => setBranch(e.target.value)}
                             placeholder={activeRole === 'faculty' ? 'e.g. Computer Science & Engg' : 'e.g. Computer Science'}
-                            className="w-full bg-[#050505] border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-white/30 transition-colors"
+                            className="w-full bg-[#0a0a0f] border border-white/20 hover:border-white/35 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 transition-colors"
                           />
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <label className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-1.5 block">
+                            <label className="text-xs font-bold tracking-wider text-slate-200 uppercase mb-1.5 block">
                               Validity / Tenure
                             </label>
                             <input
@@ -2707,11 +2707,11 @@ export default function Dashboard() {
                               value={year}
                               onChange={(e) => setYear(e.target.value)}
                               placeholder={activeRole === 'faculty' ? 'e.g. 2024 - 2029' : 'e.g. 2024 - 2028'}
-                              className="w-full bg-[#050505] border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-white/30 transition-colors"
+                              className="w-full bg-[#0a0a0f] border border-white/20 hover:border-white/35 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 transition-colors"
                             />
                           </div>
                           <div>
-                            <label className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-1.5 block">
+                            <label className="text-xs font-bold tracking-wider text-slate-200 uppercase mb-1.5 block">
                               Blood Group
                             </label>
                             <input
@@ -2719,7 +2719,7 @@ export default function Dashboard() {
                               value={bloodGroup}
                               onChange={(e) => setBloodGroup(e.target.value)}
                               placeholder="e.g. O+, B+"
-                              className="w-full bg-[#050505] border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-white/30 transition-colors"
+                              className="w-full bg-[#0a0a0f] border border-white/20 hover:border-white/35 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 transition-colors"
                             />
                           </div>
                         </div>
@@ -2753,7 +2753,7 @@ export default function Dashboard() {
 
                           {/* Single Sided Section */}
                           <div className="pt-2 border-t border-white/10">
-                            <div className="text-[9.5px] font-bold text-white/40 uppercase tracking-widest text-left mb-1.5">
+                            <div className="text-xs font-bold text-slate-300 uppercase tracking-wider text-left mb-1.5">
                               Single Card Exports
                             </div>
                             <div className="grid grid-cols-2 gap-2">
@@ -2780,7 +2780,7 @@ export default function Dashboard() {
 
                           {/* Double Sided Section */}
                           <div className="pt-2 border-t border-white/10">
-                            <div className="text-[9.5px] font-bold text-white/40 uppercase tracking-widest text-left mb-1.5">
+                            <div className="text-xs font-bold text-slate-300 uppercase tracking-wider text-left mb-1.5">
                               Double-Sided Exports
                             </div>
                             <div className="grid grid-cols-2 gap-2">
@@ -2839,7 +2839,7 @@ export default function Dashboard() {
               <div className="flex-1 bg-[#050505] p-8 flex flex-col overflow-y-auto relative">
                 <div className="flex justify-between items-center mb-6 shrink-0">
                   <div>
-                    <div className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-1">
+                    <div className="text-xs font-bold tracking-wider text-slate-300 uppercase mb-1">
                       {isFlipped ? 'Back Face (Portal QR & Details)' : activeRole === 'faculty' ? 'Faculty ID Front Preview' : 'Student Card Front Preview'}
                     </div>
                     <h3 className="text-lg font-bold text-white truncate max-w-[320px]">

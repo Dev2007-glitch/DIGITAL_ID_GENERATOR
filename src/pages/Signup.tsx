@@ -193,99 +193,98 @@ export default function Signup() {
       <div className="fixed inset-0 bg-black/60 backdrop-blur-md pointer-events-none"></div>
 
       <div className="relative z-10 w-full max-w-xl p-6 sm:p-9 bg-[#0A0A0C]/90 backdrop-blur-2xl rounded-2xl shadow-[0_0_60px_rgba(255,255,255,0.07)] border border-white/20 my-6">
-        {/* Anti-Malpractice Header Badge */}
-        <div className="flex items-center justify-between pb-4 mb-5 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-[11px] font-mono tracking-wider text-emerald-300 uppercase font-semibold">
-              Anti-Malpractice Protocol Active
-            </span>
+        {/* Clean Step Navigator: 1. Register First | 2. Sign In */}
+        <div className="flex rounded-xl bg-white/5 p-1 border border-white/15 mb-6">
+          <div className="flex-1 py-2.5 text-center text-xs font-bold uppercase tracking-wider rounded-lg bg-white text-black shadow-lg flex items-center justify-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-black/10 text-black flex items-center justify-center text-[10px] font-bold">1</span>
+            <span>Register First</span>
           </div>
-          <span className="text-[10px] font-mono text-white/40 bg-white/5 px-2 py-0.5 rounded border border-white/10">
-            One Student = One Login
-          </span>
+          <Link
+            to="/auth"
+            className="flex-1 py-2.5 text-center text-xs font-bold uppercase tracking-wider rounded-lg transition-all text-slate-300 hover:text-white flex items-center justify-center gap-2"
+          >
+            <span className="w-5 h-5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 flex items-center justify-center text-[10px] font-bold">2</span>
+            <span>Sign In</span>
+          </Link>
         </div>
 
-        {/* Title & Register First Prompt */}
+        {/* Title */}
         <div className="text-center mb-6">
-          <div className="w-12 h-12 mx-auto rounded-full border border-white/20 flex items-center justify-center bg-black mb-3 shadow-lg">
-            <div className="w-4 h-4 bg-white rounded-full"></div>
+          <div className="w-12 h-12 mx-auto rounded-full border border-white/20 flex items-center justify-center bg-black/80 mb-3 shadow-lg">
+            <div className="w-3.5 h-3.5 bg-emerald-400 rounded-full shadow-[0_0_12px_rgba(52,211,153,0.8)]"></div>
           </div>
-          <div className="inline-block px-3 py-0.5 mb-1.5 rounded-full bg-blue-500/10 border border-blue-400/30 text-blue-300 text-[10px] font-bold uppercase tracking-widest">
-            Step 1 • Register First
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-wider uppercase mb-1">
-            Institutional Enrollment
-          </h2>
-          <p className="text-white/60 text-xs sm:text-sm max-w-md mx-auto">
-            Register your institution credentials with your restricted college PIN and official university email.
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-wider uppercase mb-1">
+            Institutional Registration
+          </h1>
+          <p className="text-slate-300 text-xs sm:text-sm max-w-sm mx-auto leading-relaxed mt-1">
+            Register your verified student identity with your campus roll number and security PIN.
           </p>
         </div>
 
         {/* Campus Role Selector: Student, Faculty, Security, ID Issuer, Admin */}
         <div className="mb-5">
-          <label className="text-[10px] font-bold tracking-widest text-white/50 uppercase block mb-2 text-center">
+          <label className="text-xs font-bold tracking-wider text-slate-300 uppercase block mb-2 text-center">
             Select Your Campus Role
           </label>
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 p-1 bg-black/60 rounded-xl border border-white/10">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 p-1.5 bg-black/70 rounded-xl border border-white/20">
             <button
               type="button"
               onClick={() => setRole('student')}
-              className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+              className={`py-2.5 text-xs font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
                 role === 'student'
-                  ? 'bg-white text-black shadow-md'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/40 font-bold'
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
               }`}
             >
-              <span>🎓</span>
+              <span className="text-base">🎓</span>
               <span>Student</span>
             </button>
             <button
               type="button"
               onClick={() => setRole('faculty')}
-              className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+              className={`py-2.5 text-xs font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
                 role === 'faculty'
-                  ? 'bg-white text-black shadow-md'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
+                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/40 font-bold'
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
               }`}
             >
-              <span>👨‍🏫</span>
+              <span className="text-base">👨‍🏫</span>
               <span>Faculty</span>
             </button>
             <button
               type="button"
               onClick={() => setRole('security')}
-              className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+              className={`py-2.5 text-xs font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
                 role === 'security'
-                  ? 'bg-white text-black shadow-md'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
+                  ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/40 font-bold'
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
               }`}
             >
-              <span>🛡️</span>
+              <span className="text-base">🛡️</span>
               <span>Security</span>
             </button>
             <button
               type="button"
               onClick={() => setRole('issuer')}
-              className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+              className={`py-2.5 text-xs font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
                 role === 'issuer'
-                  ? 'bg-white text-black shadow-md'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
+                  ? 'bg-teal-600 text-white shadow-lg shadow-teal-600/40 font-bold'
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
               }`}
             >
-              <span>🎛️</span>
+              <span className="text-base">🎛️</span>
               <span>ID Issuer</span>
             </button>
             <button
               type="button"
               onClick={() => setRole('admin')}
-              className={`py-2 text-[11px] font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+              className={`py-2.5 text-xs font-semibold rounded-lg transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
                 role === 'admin'
-                  ? 'bg-white text-black shadow-md'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
+                  ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/40 font-bold'
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
               }`}
             >
-              <span>⚡</span>
+              <span className="text-base">⚡</span>
               <span>Admin</span>
             </button>
           </div>
@@ -320,11 +319,11 @@ export default function Signup() {
         {/* Divider */}
         {role !== 'security' && (
           <div className="relative flex py-2 items-center mb-5">
-            <div className="flex-grow border-t border-white/10"></div>
-            <span className="flex-shrink mx-3 text-[10px] uppercase tracking-wider text-white/40 font-bold">
+            <div className="flex-grow border-t border-white/20"></div>
+            <span className="flex-shrink mx-3 text-xs uppercase tracking-wider text-slate-300 font-bold">
               Or Complete Institutional Enrollment
             </span>
-            <div className="flex-grow border-t border-white/10"></div>
+            <div className="flex-grow border-t border-white/20"></div>
           </div>
         )}
 
@@ -338,7 +337,7 @@ export default function Signup() {
               <h3 className="text-base font-bold text-amber-300 uppercase tracking-wide">
                 Chief Security Officer Pre-Enrolled
               </h3>
-              <p className="text-xs text-white/70 max-w-sm mx-auto mt-1 leading-relaxed">
+              <p className="text-xs text-slate-300 max-w-sm mx-auto mt-1 leading-relaxed">
                 Campus Security Administrator access is strictly assigned to{' '}
                 <strong className="text-amber-300 font-mono">{AUTHORIZED_SECURITY_EMAIL}</strong>. Security officers do not need student enrollment. Please sign in directly.
               </p>
@@ -357,13 +356,13 @@ export default function Signup() {
         <form className="space-y-4" onSubmit={handleInitiateSignup}>
           {/* 1. College Selection */}
           <div>
-            <label className="text-[10px] font-bold tracking-widest text-white/60 uppercase block mb-1">
+            <label className="text-xs font-bold tracking-wider text-slate-200 uppercase block mb-1.5">
               Select Your College / University
             </label>
             <select
               value={collegeKey}
               onChange={(e) => handleCollegeChange(e.target.value)}
-              className="w-full bg-black/80 border border-white/20 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-400 transition-colors"
+              className="w-full bg-black/80 border border-white/20 hover:border-white/35 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-400 transition-colors cursor-pointer"
             >
               {Object.values(COLLEGE_SECURITY_SPECS).map((spec) => (
                 <option key={spec.key} value={spec.key} className="bg-[#111] text-white">
@@ -373,16 +372,16 @@ export default function Signup() {
             </select>
           </div>
 
-          {/* 2. Restricted College Security PIN Code - SECRET (No PIN revealed) */}
-          <div className="p-3.5 rounded-xl bg-blue-950/20 border border-blue-500/30 space-y-1.5">
+          {/* 2. Restricted College Security PIN Code - SECRET */}
+          <div className="p-4 rounded-xl bg-blue-950/30 border border-blue-500/40 space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-[10.5px] font-bold tracking-widest text-blue-200 uppercase flex items-center gap-1.5">
+              <label className="text-xs font-bold tracking-wider text-blue-200 uppercase flex items-center gap-1.5">
                 <span>🔐</span>
                 <span>Classified College Security PIN Code</span>
               </label>
-              <span className="text-[10px] text-amber-300/80 font-mono flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                Issued by Campus Security Only
+              <span className="text-xs text-amber-300 font-mono flex items-center gap-1 font-semibold">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                Campus Security PIN Required
               </span>
             </div>
             <div className="relative">
@@ -395,25 +394,25 @@ export default function Signup() {
                 }}
                 placeholder="Enter secret campus security PIN"
                 required
-                className="w-full bg-black/80 border border-blue-400/30 rounded-xl px-4 py-2.5 pr-11 text-white font-mono placeholder-white/30 focus:outline-none focus:border-blue-300 text-sm tracking-widest"
+                className="w-full bg-black/80 border border-blue-400/40 hover:border-blue-400 rounded-xl px-4 py-3 pr-11 text-white font-mono placeholder-slate-500 focus:outline-none focus:border-blue-300 text-sm tracking-widest"
               />
               <button
                 type="button"
                 onClick={() => setShowPin(!showPin)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white text-xs cursor-pointer select-none"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-sm cursor-pointer select-none"
                 title={showPin ? 'Hide PIN' : 'Show PIN'}
               >
                 {showPin ? '👁️' : '🔒'}
               </button>
             </div>
-            <p className="text-[10.5px] text-white/50 leading-relaxed">
+            <p className="text-xs text-slate-300 leading-relaxed">
               Security Protocol: PIN codes are classified and known exclusively to Campus Security. If you do not have an official security PIN, contact your campus security desk.
             </p>
           </div>
 
           {/* 3. Full Name */}
           <div>
-            <label className="text-[10px] font-bold tracking-widest text-white/50 uppercase block mb-1">
+            <label className="text-xs font-bold tracking-wider text-slate-200 uppercase block mb-1.5">
               {role === 'student' ? 'Student Full Name' : role === 'faculty' ? 'Faculty / Professor Name' : 'Security Officer Name'}
             </label>
             <input
@@ -422,13 +421,13 @@ export default function Signup() {
               onChange={(e) => setName(e.target.value)}
               placeholder={role === 'student' ? 'e.g. Aarav Sharma' : role === 'faculty' ? 'e.g. Dr. V. Ramanathan' : 'e.g. Officer K. Kumar'}
               required
-              className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-white/40 text-sm transition-colors"
+              className="w-full bg-black/80 border border-white/20 hover:border-white/35 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 text-sm transition-colors"
             />
           </div>
 
           {/* 4. Institutional Roll / Registration Number */}
           <div>
-            <label className="text-[10px] font-bold tracking-widest text-white/50 uppercase block mb-1">
+            <label className="text-xs font-bold tracking-wider text-slate-200 uppercase block mb-1.5">
               {role === 'student' ? 'Unique Roll / Registration Number' : role === 'faculty' ? 'Faculty Employee ID' : 'Guard Badge / Officer ID'}
             </label>
             <input
@@ -437,20 +436,20 @@ export default function Signup() {
               onChange={(e) => setRegNo(e.target.value.toUpperCase())}
               placeholder={currentCollege.rollPlaceholder}
               required
-              className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-white/40 text-sm uppercase font-mono tracking-wider transition-colors"
+              className="w-full bg-black/80 border border-white/20 hover:border-white/35 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 text-sm uppercase font-mono tracking-wider transition-colors"
             />
-            <span className="text-[10.5px] text-white/40 mt-1 block">
+            <span className="text-xs text-slate-300 mt-1.5 block">
               Permanent institutional identifier. One roll number can register only once.
             </span>
           </div>
 
           {/* 5. Student / Faculty Email Address */}
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-[10px] font-bold tracking-widest text-white/50 uppercase">
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-bold tracking-wider text-slate-200 uppercase">
                 {role === 'student' ? 'Student Email Address' : 'Faculty Email Address'}
               </label>
-              <span className="text-[10px] text-emerald-300 font-mono">
+              <span className="text-xs text-emerald-400 font-mono font-semibold">
                 @gmail & campus emails accepted
               </span>
             </div>
@@ -463,16 +462,16 @@ export default function Signup() {
               }}
               placeholder={`e.g. yourname@gmail.com or student@${currentCollege.emailDomains[0]}`}
               required
-              className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-white/40 text-sm transition-colors"
+              className="w-full bg-black/80 border border-white/20 hover:border-white/35 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 text-sm transition-colors"
             />
-            <div className="mt-1 text-[10.5px] text-white/40">
+            <div className="mt-1.5 text-xs text-slate-300">
               Enter your Google account or college email to verify institutional identity.
             </div>
           </div>
 
           {/* 6. Password */}
           <div>
-            <label className="text-[10px] font-bold tracking-widest text-white/50 uppercase block mb-1">
+            <label className="text-xs font-bold tracking-wider text-slate-200 uppercase block mb-1.5">
               Create Account Password
             </label>
             <input
@@ -481,7 +480,7 @@ export default function Signup() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••••"
               required
-              className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-white/40 text-sm transition-colors"
+              className="w-full bg-black/80 border border-white/20 hover:border-white/35 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 text-sm transition-colors"
             />
           </div>
 
@@ -489,7 +488,7 @@ export default function Signup() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-white text-black font-bold text-xs sm:text-sm tracking-widest uppercase rounded-xl py-3.5 mt-2 hover:bg-gray-200 transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm tracking-wider uppercase rounded-xl py-3.5 mt-2 shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
           >
             {isSubmitting ? (
               <span>Finalizing Enrollment...</span>
@@ -502,11 +501,11 @@ export default function Signup() {
           </button>
 
           {/* Redirect to Login */}
-          <div className="text-center pt-3 border-t border-white/10">
-            <p className="text-white/60 text-xs">
+          <div className="text-center pt-4 border-t border-white/20">
+            <p className="text-slate-300 text-sm">
               Already enrolled with your institution?{' '}
-              <Link to="/auth" className="text-white hover:underline font-bold ml-1">
-                Sign In with Your Credentials
+              <Link to="/auth" className="text-blue-400 hover:text-blue-300 hover:underline font-bold ml-1">
+                Sign In with Your Credentials →
               </Link>
             </p>
           </div>

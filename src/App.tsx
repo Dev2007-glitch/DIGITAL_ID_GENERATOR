@@ -162,30 +162,32 @@ export default function App() {
   return (
     <div className="bg-[#050505] text-white font-sans">
       {/* Header Navigation */}
-      <header className="fixed top-0 inset-x-0 z-50 flex justify-between items-center px-8 md:px-12 py-6 pointer-events-auto mix-blend-difference">
+      <header className="fixed top-0 inset-x-0 z-50 flex justify-between items-center px-6 md:px-12 py-4 bg-black/60 backdrop-blur-lg border-b border-white/10 pointer-events-auto transition-all">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 cursor-pointer group">
           <div className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center backdrop-blur-md group-hover:border-white transition-colors duration-300">
             <div className="w-3 h-3 bg-white rounded-full transition-transform duration-300 group-hover:scale-110"></div>
           </div>
-          <span className="text-lg font-medium tracking-[0.25em] text-white uppercase">
+          <span className="text-base sm:text-lg font-bold tracking-[0.25em] text-white uppercase">
             IDStream
           </span>
         </Link>
 
-        {/* Auth Buttons */}
-        <div className="flex items-center gap-8">
-          <Link
-            to="/auth"
-            className="text-sm font-medium tracking-wide text-white hover:text-gray-300 transition-colors duration-300 hidden md:block"
-          >
-            Log In
-          </Link>
+        {/* Auth Buttons: 1. Register First | 2. Sign In */}
+        <div className="flex items-center gap-2.5 sm:gap-4">
           <Link
             to="/signup"
-            className="text-sm font-medium tracking-wide bg-white/10 hover:bg-white text-white hover:text-black border border-white/20 px-6 py-2.5 rounded-full backdrop-blur-md transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+            className="text-xs sm:text-sm font-bold tracking-wide bg-blue-600 hover:bg-blue-500 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all shadow-md shadow-blue-600/30 flex items-center gap-1.5 cursor-pointer active:scale-95"
           >
-            Register First
+            <span className="w-4 h-4 rounded-full bg-white/20 text-white text-[10px] flex items-center justify-center font-mono font-bold">1</span>
+            <span>Register First</span>
+          </Link>
+          <Link
+            to="/auth"
+            className="text-xs sm:text-sm font-semibold tracking-wide bg-white/10 hover:bg-white/20 text-white border border-white/20 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+          >
+            <span className="w-4 h-4 rounded-full bg-white/20 text-white text-[10px] flex items-center justify-center font-mono font-bold">2</span>
+            <span>Sign In</span>
           </Link>
         </div>
       </header>
